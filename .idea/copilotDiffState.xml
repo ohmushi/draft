@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="CopilotDiffPersistence">
+    <option name="pendingDiffs">
+      <map>
+        <entry key="/next.config (snapshot).ts">
+          <value>
+            <PendingDiffInfo>
+              <option name="filePath" value="/next.config (snapshot).ts" />
+              <option name="originalContent" value="import createMDX from '@next/mdx'&#10;&#10;const withMDX = createMDX({&#10;    options: {&#10;        remarkPlugins: [],&#10;        rehypePlugins: [],&#10;    },&#10;})&#10;&#10;export default withMDX({&#10;    output: 'export',&#10;    pageExtensions: ['ts', 'tsx', 'mdx'],&#10;})" />
+              <option name="updatedContent" value="import createMDX from '@next/mdx'&#10;import remarkFrontmatter from 'remark-frontmatter'&#10;import remarkMdxFrontmatter from 'remark-mdx-frontmatter'&#10;&#10;const withMDX = createMDX({&#10;    options: {&#10;        remarkPlugins: [remarkFrontmatter, remarkMdxFrontmatter],&#10;        rehypePlugins: [],&#10;    },&#10;})&#10;&#10;export default withMDX({&#10;    output: 'export',&#10;    pageExtensions: ['ts', 'tsx', 'mdx'],&#10;})" />
+            </PendingDiffInfo>
+          </value>
+        </entry>
+      </map>
+    </option>
+  </component>
+</project>

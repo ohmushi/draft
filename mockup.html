@@ -1,0 +1,453 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Draft</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;1,400&family=Newsreader:ital,wght@0,300;0,400;1,300;1,400&family=JetBrains+Mono:wght@300;400&display=swap" rel="stylesheet">
+
+    <style>
+        :root {
+            --cream: #F5F0E8;
+            --cream-dark: #EDE7D9;
+            --ink: #1C1A17;
+            --ink-soft: #3D3A35;
+            --ink-faint: #8C8880;
+            --accent-yellow: #D4A017;
+            --accent-red: #C0392B;
+            --accent-green: #4A7C59;
+            --accent-blue: #2563A8;
+            --paper-line: rgba(28, 26, 23, 0.08);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            background-color: var(--cream);
+            color: var(--ink);
+            font-family: 'Newsreader', Georgia, serif;
+            font-size: 17px;
+            line-height: 1.75;
+            min-height: 100vh;
+            /* Subtle paper texture via noise */
+            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='300' height='300'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.75' numOctaves='4' stitchTiles='stitch'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3C/filter%3E%3Crect width='300' height='300' filter='url(%23noise)' opacity='0.035'/%3E%3C/svg%3E");
+        }
+
+        /* ── HEADER ── */
+        header {
+            padding: 3rem 0 2rem;
+            max-width: 680px;
+            margin: 0 auto;
+            padding-left: 2rem;
+            padding-right: 2rem;
+            position: relative;
+        }
+
+        .site-title {
+            font-family: 'Playfair Display', Georgia, serif;
+            font-size: clamp(3.5rem, 10vw, 6rem);
+            font-weight: 700;
+            letter-spacing: -0.03em;
+            line-height: 0.9;
+            color: var(--ink);
+            position: relative;
+            display: inline-block;
+        }
+
+        .site-title::after {
+            content: '.';
+            color: var(--accent-red);
+        }
+
+        .site-tagline {
+            font-family: 'Newsreader', serif;
+            font-style: italic;
+            font-size: 1rem;
+            color: var(--ink-faint);
+            margin-top: 0.75rem;
+            font-weight: 300;
+            letter-spacing: 0.01em;
+        }
+
+        /* Hand-drawn underline under title */
+        .title-underline {
+            display: block;
+            margin-top: 0.4rem;
+            width: 100%;
+            max-width: 200px;
+        }
+
+        nav {
+            margin-top: 1.5rem;
+            display: flex;
+            gap: 1.5rem;
+            align-items: center;
+        }
+
+        nav a {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.75rem;
+            font-weight: 300;
+            text-decoration: none;
+            color: var(--ink-faint);
+            letter-spacing: 0.08em;
+            text-transform: uppercase;
+            transition: color 0.2s;
+            position: relative;
+        }
+
+        nav a:hover { color: var(--ink); }
+
+        nav a.active {
+            color: var(--ink);
+        }
+
+        nav a.active::before {
+            content: '→ ';
+            color: var(--accent-red);
+        }
+
+        /* ── DIVIDER ── */
+        .divider {
+            max-width: 680px;
+            margin: 0 auto 3rem;
+            padding: 0 2rem;
+        }
+
+        .divider svg {
+            width: 100%;
+            height: 12px;
+            overflow: visible;
+        }
+
+        /* ── MAIN CONTENT ── */
+        main {
+            max-width: 680px;
+            margin: 0 auto;
+            padding: 0 2rem 6rem;
+        }
+
+        /* ── ENTRY ── */
+        .entry {
+            margin-bottom: 3.5rem;
+            position: relative;
+            animation: fadeUp 0.6s ease both;
+        }
+
+        .entry:nth-child(1) { animation-delay: 0.05s; }
+        .entry:nth-child(2) { animation-delay: 0.15s; }
+        .entry:nth-child(3) { animation-delay: 0.25s; }
+        .entry:nth-child(4) { animation-delay: 0.35s; }
+
+        @keyframes fadeUp {
+            from { opacity: 0; transform: translateY(12px); }
+            to   { opacity: 1; transform: translateY(0); }
+        }
+
+        .entry-meta {
+            display: flex;
+            align-items: baseline;
+            gap: 0.75rem;
+            margin-bottom: 0.6rem;
+        }
+
+        .entry-date {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.7rem;
+            font-weight: 300;
+            color: var(--ink-faint);
+            letter-spacing: 0.05em;
+        }
+
+        .entry-tag {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.65rem;
+            font-weight: 400;
+            letter-spacing: 0.1em;
+            text-transform: uppercase;
+            padding: 0.15em 0.5em;
+            border-radius: 2px;
+        }
+
+        .tag-dev     { background: rgba(37, 99, 168, 0.12); color: var(--accent-blue); }
+        .tag-dessin  { background: rgba(74, 124, 89, 0.12); color: var(--accent-green); }
+        .tag-music   { background: rgba(192, 57, 43, 0.12); color: var(--accent-red); }
+        .tag-ecriture{ background: rgba(212, 160, 23, 0.15); color: #8a6600; }
+
+        .entry-body {
+            color: var(--ink-soft);
+            font-size: 1rem;
+            line-height: 1.8;
+        }
+
+        .entry-body p + p {
+            margin-top: 0.8em;
+        }
+
+        .entry-body em {
+            font-style: italic;
+            color: var(--ink);
+        }
+
+        /* Margin annotation */
+        .annotation {
+            font-family: 'Playfair Display', serif;
+            font-style: italic;
+            font-size: 0.85rem;
+            color: var(--accent-red);
+            margin-top: 0.5rem;
+            padding-left: 1rem;
+            border-left: 2px solid var(--accent-red);
+            opacity: 0.85;
+        }
+
+        /* Code snippet in entry */
+        .entry-code {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.78rem;
+            background: var(--cream-dark);
+            border: 1px solid var(--paper-line);
+            border-left: 3px solid var(--accent-blue);
+            padding: 0.8rem 1rem;
+            margin: 0.8rem 0;
+            color: var(--ink-soft);
+            line-height: 1.6;
+            white-space: pre;
+            overflow-x: auto;
+        }
+
+        /* Image placeholder */
+        .entry-image {
+            margin: 1rem 0;
+            background: var(--cream-dark);
+            border: 1px dashed rgba(28,26,23,0.2);
+            border-radius: 2px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            height: 180px;
+            color: var(--ink-faint);
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.7rem;
+            letter-spacing: 0.05em;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .entry-image::before {
+            content: '';
+            position: absolute;
+            inset: 0;
+            background: repeating-linear-gradient(
+                    -45deg,
+                    transparent,
+                    transparent 8px,
+                    rgba(28,26,23,0.025) 8px,
+                    rgba(28,26,23,0.025) 9px
+            );
+        }
+
+        /* Separator between entries */
+        .entry-sep {
+            margin: 0 0 3.5rem;
+            border: none;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            color: var(--ink-faint);
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.65rem;
+            letter-spacing: 0.15em;
+        }
+
+        .entry-sep::before,
+        .entry-sep::after {
+            content: '';
+            flex: 1;
+            height: 1px;
+            background: var(--paper-line);
+        }
+
+        /* ── STICKY NOTE aside ── */
+        .sticky {
+            background: #F5E642;
+            padding: 1rem 1.2rem;
+            transform: rotate(-1.5deg);
+            display: inline-block;
+            max-width: 260px;
+            box-shadow: 2px 3px 8px rgba(0,0,0,0.1);
+            font-family: 'Newsreader', serif;
+            font-style: italic;
+            font-size: 0.9rem;
+            color: #333;
+            line-height: 1.5;
+            margin: 1rem 0;
+            position: relative;
+        }
+
+        .sticky::before {
+            content: '';
+            position: absolute;
+            top: -6px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 30px;
+            height: 12px;
+            background: rgba(0,0,0,0.08);
+            border-radius: 1px;
+        }
+
+        /* ── FOOTER ── */
+        footer {
+            max-width: 680px;
+            margin: 0 auto;
+            padding: 2rem 2rem 4rem;
+            border-top: 1px solid var(--paper-line);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        footer span {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.65rem;
+            color: var(--ink-faint);
+            letter-spacing: 0.05em;
+        }
+
+        .footer-dot {
+            width: 6px;
+            height: 6px;
+            background: var(--accent-red);
+            border-radius: 50%;
+        }
+
+        /* ── HOVER EFFECT on entries ── */
+        .entry:hover .entry-date {
+            color: var(--ink);
+            transition: color 0.2s;
+        }
+
+        /* ── SCROLL indicator ── */
+        .scroll-hint {
+            text-align: center;
+            padding: 1rem 0 2rem;
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.65rem;
+            color: var(--ink-faint);
+            letter-spacing: 0.12em;
+            animation: pulse 2.5s ease-in-out infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 0.4; }
+            50% { opacity: 1; }
+        }
+
+    </style>
+</head>
+<body>
+
+<header>
+    <h1 class="site-title">Draft</h1>
+    <svg class="title-underline" viewBox="0 0 200 8" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <path d="M2 5.5 C30 2, 60 7, 90 4.5 S150 2, 198 5" stroke="#C0392B" stroke-width="2" stroke-linecap="round" fill="none"/>
+    </svg>
+    <p class="site-tagline">un atelier ouvert — code, dessin, musique, et tout le reste</p>
+    <nav>
+        <a href="#" class="active">flux</a>
+        <a href="#">à propos</a>
+        <a href="#">tentatives</a>
+    </nav>
+</header>
+
+<div class="divider">
+    <svg viewBox="0 0 640 12" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <path d="M0 6 C80 2, 160 9, 240 5.5 S400 3, 480 6.5 S580 8, 640 5" stroke="#1C1A17" stroke-width="1" stroke-linecap="round" opacity="0.15" fill="none"/>
+    </svg>
+</div>
+
+<main>
+
+    <!-- Entry 1 -->
+    <article class="entry">
+        <div class="entry-meta">
+            <span class="entry-date">20 avr. 2026 — 23:14</span>
+            <span class="entry-tag tag-dev">dev</span>
+        </div>
+        <div class="entry-body">
+            <p>Je commence à mettre en place le pipeline de rendu. Rien de glamour — juste un parser markdown qui comprend les blocs de code et les images. Mais je me suis retrouvé à réécrire trois fois la même fonction parce que je n'arrivais pas à décider si je voulais du lazy-loading ou pas.</p>
+            <div class="entry-code">const render = (src) => {
+                // TODO: décider si c'est lazy ou pas
+                return parse(src).transform(highlight)
+                }</div>
+            <p>Le fait que je bloque sur ça me dit quelque chose. Peut-être que la question n'est pas technique.</p>
+            <p class="annotation">→ revenir là-dessus demain, tête reposée</p>
+        </div>
+    </article>
+
+    <hr class="entry-sep">
+
+    <!-- Entry 2 -->
+    <article class="entry">
+        <div class="entry-meta">
+            <span class="entry-date">18 avr. 2026 — 19:02</span>
+            <span class="entry-tag tag-dessin">dessin</span>
+        </div>
+        <div class="entry-body">
+            <p>Premier essai sérieux de portrait. J'ai regardé une vidéo de 40 minutes sur les proportions du visage humain, pris des notes, puis... dessiné quelque chose qui ressemble à une pomme de terre avec des yeux.</p>
+            <div class="entry-image">[ esquisse — portrait jour 1 ]</div>
+            <p>Ce qui est bizarre c'est que j'ai quand même trouvé ça satisfaisant. Pas le résultat — le geste. L'idée que ma main a essayé de faire quelque chose que mon cerveau voulait.</p>
+        </div>
+        <div class="sticky">
+            "la main doit apprendre ce que l'œil voit déjà"
+        </div>
+    </article>
+
+    <hr class="entry-sep">
+
+    <!-- Entry 3 -->
+    <article class="entry">
+        <div class="entry-meta">
+            <span class="entry-date">15 avr. 2026 — 21:37</span>
+            <span class="entry-tag tag-music">musique</span>
+        </div>
+        <div class="entry-body">
+            <p>J'ai passé une heure à essayer de reproduire une progression d'accords que j'avais en tête depuis ce matin. <em>Am — F — C — G</em>. Classique, je sais. Mais quand c'est la première fois que tes doigts font ça sans regarder, c'est quand même quelque chose.</p>
+            <p>Connexion inattendue : apprendre une progression d'accords c'est comme apprendre un pattern de design. Tu l'appliques machinalement jusqu'au moment où tu comprends pourquoi ça marche, et là tu peux le casser.</p>
+        </div>
+    </article>
+
+    <hr class="entry-sep">
+
+    <!-- Entry 4 -->
+    <article class="entry">
+        <div class="entry-meta">
+            <span class="entry-date">12 avr. 2026 — 17:20</span>
+            <span class="entry-tag tag-ecriture">écriture</span>
+        </div>
+        <div class="entry-body">
+            <p>Première tentative de nouvelle courte. J'ai une idée depuis des semaines — un personnage qui réalise que ses souvenirs sont organisés comme un système de fichiers. J'ai écrit 200 mots, effacé 180, gardé les 20 qui sonnaient juste.</p>
+            <p><em>"Il cherchait le dossier de l'été 2019, mais le répertoire était vide. Pas supprimé. Vide."</em></p>
+            <p>Je ne sais pas encore ce que c'est. Mais j'aime ce que ça dit sur la mémoire.</p>
+        </div>
+    </article>
+
+    <div class="scroll-hint">↓ &nbsp; plus haut dans le flux</div>
+
+</main>
+
+<footer>
+    <span>Draft — atelier ouvert depuis 2026</span>
+    <div class="footer-dot"></div>
+    <span>tout est en cours</span>
+</footer>
+
+</body>
+</html>
