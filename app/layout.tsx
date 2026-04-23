@@ -1,6 +1,8 @@
 import type { Metadata } from "next";
 import { Playfair_Display, Newsreader, JetBrains_Mono } from "next/font/google";
 import Link from "next/link";
+import TitleUnderline from "@/components/TitleUnderline";
+import WavyDivider from "@/components/WavyDivider";
 import "./globals.css";
 
 const playfair = Playfair_Display({
@@ -44,20 +46,7 @@ export default function RootLayout({
       <body>
         <header>
           <h1 className="site-title">Draft</h1>
-          <svg
-            className="title-underline"
-            viewBox="0 0 200 8"
-            fill="none"
-            xmlns="http://www.w3.org/2000/svg"
-          >
-            <path
-              d="M2 5.5 C30 2, 60 7, 90 4.5 S150 2, 198 5"
-              stroke="#C0392B"
-              strokeWidth="2"
-              strokeLinecap="round"
-              fill="none"
-            />
-          </svg>
+          <TitleUnderline />
           <p className="site-tagline">
             un atelier ouvert — code, dessin, musique, et tout le reste
           </p>
@@ -69,22 +58,7 @@ export default function RootLayout({
           </nav>
         </header>
 
-        <div className="divider">
-          <svg
-            viewBox="0 0 640 12"
-            fill="none"
-            xmlns="http://www.w3.org/2000/svg"
-          >
-            <path
-              d="M0 6 C80 2, 160 9, 240 5.5 S400 3, 480 6.5 S580 8, 640 5"
-              stroke="#1C1A17"
-              strokeWidth="1"
-              strokeLinecap="round"
-              opacity="0.15"
-              fill="none"
-            />
-          </svg>
-        </div>
+        <WavyDivider />
 
         {children}
 
