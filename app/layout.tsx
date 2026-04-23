@@ -30,7 +30,7 @@ const jetbrainsMono = JetBrains_Mono({
 
 export const metadata: Metadata = {
   title: "Draft",
-  description: "un atelier ouvert — code, dessin, musique, et tout le reste",
+  description: "un atelier ouvert — code, dessin, expériences, et tout le reste",
 };
 
 export default function RootLayout({
@@ -48,7 +48,7 @@ export default function RootLayout({
           <h1 className="site-title">Draft</h1>
           <TitleUnderline />
           <p className="site-tagline">
-            un atelier ouvert — code, dessin, musique, et tout le reste
+            {metadata.description}
           </p>
           <nav>
             <Link href="/" className="active">
