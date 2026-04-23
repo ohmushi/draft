@@ -9,6 +9,7 @@ const TAG_CLASS: Record<string, string> = {
   musique: 'tag-music',
   écriture: 'tag-ecriture',
   ecriture: 'tag-ecriture',
+  meta: 'tag-meta',
 }
 
 function formatDate(dateStr: string, time?: string): string {
