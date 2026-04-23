@@ -8,7 +8,7 @@ export type Entry = {
   slug: string
   date: string
   tag: string
-  excerpt: string
+  time?: string
 }
 
 export function getAllEntries(): Entry[] {
@@ -24,13 +24,13 @@ export function getAllEntries(): Entry[] {
     const slug = filename.replace(/\.mdx$/, '')
     const datePart = slug.slice(0, 10)
     const raw = fs.readFileSync(path.join(ENTRIES_DIR, filename), 'utf-8')
-    const { data, content } = matter(raw)
+    const { data } = matter(raw)
 
     return {
       slug,
       date: datePart,
       tag: (data.tag as string) ?? 'autre',
-      excerpt: content.slice(0, 200).trim(),
+      time: (data.time as string | undefined),
     }
   })
 }
@@ -39,7 +39,7 @@ export function getEntryBySlug(slug: string) {
   const filepath = path.join(ENTRIES_DIR, `${slug}.mdx`)
   const raw = fs.readFileSync(filepath, 'utf-8')
   const { data, content } = matter(raw)
-  return { slug, date: slug.slice(0, 10), tag: (data.tag as string) ?? 'autre', content }
+  return { slug, date: slug.slice(0, 10), tag: (data.tag as string) ?? 'autre', time: (data.time as string | undefined), content }
 }
 
 export function getAllSlugs(): string[] {
@@ -49,4 +49,3 @@ export function getAllSlugs(): string[] {
     .filter((f) => f.endsWith('.mdx'))
     .map((f) => f.replace(/\.mdx$/, ''))
 }
-

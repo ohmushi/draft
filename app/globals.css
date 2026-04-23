@@ -158,6 +158,7 @@ main {
 .tag-dessin  { background: rgba(74, 124, 89, 0.12); color: var(--accent-green); }
 .tag-music   { background: rgba(192, 57, 43, 0.12); color: var(--accent-red); }
 .tag-ecriture{ background: rgba(212, 160, 23, 0.15); color: #8a6600; }
+.tag-autre   { background: rgba(140, 136, 128, 0.12); color: var(--ink-faint); }
 
 .entry-body {
   color: var(--ink-soft);
@@ -290,6 +291,8 @@ main {
   display: flex;
   align-items: center;
   gap: 0.5rem;
+  height: auto;
+  min-height: 1px;
   color: var(--ink-faint);
   font-family: 'JetBrains Mono', monospace;
   font-size: 0.65rem;
@@ -346,6 +349,18 @@ footer span {
 }
 
 /* ── Hover effects ── */
+.entry-date-link {
+  text-decoration: none;
+}
+
+.entry-date-link:hover .entry-date {
+  color: var(--ink);
+  text-decoration: underline;
+  text-underline-offset: 3px;
+  text-decoration-color: var(--accent-red);
+  transition: color 0.2s;
+}
+
 .entry:hover .entry-date {
   color: var(--ink);
   transition: color 0.2s;
