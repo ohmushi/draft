@@ -103,8 +103,8 @@ Ces composants enrichissent les entrées au-delà du markdown standard :
 |---|---|---|
 | Framework | **Next.js** (App Router) | Déjà maîtrisé, pas de surprise |
 | Contenu | **MDX** | Markdown + composants React inline |
-| Rendu | **Static export** (`output: 'export'`) | Pas de serveur, déploiement trivial |
-| Hébergement | **Vercel** | Gratuit, déploiement automatique depuis git |
+| Rendu | **Standalone** (`output: 'standalone'`) | Routes serveur actives (PWA `/api/entry`), SSG conservé pour le flux |
+| Hébergement | **Dokploy** (serveur perso, Docker + compose) | App dynamique, Traefik gère le TLS |
 | Style | **CSS Modules ou globals.css** | Pas de sur-ingénierie |
 
 ### Dépendances

@@ -1,0 +1,37 @@
+# Build artifacts
+node_modules
+.next
+out
+dist
+
+# VCS
+.git
+.gitignore
+
+# Env (loaded by compose at runtime)
+.env
+.env.*
+!.env.example
+
+# Editor / OS
+.vscode
+.idea
+.DS_Store
+Thumbs.db
+
+# Logs
+*.log
+npm-debug.log*
+
+# Project docs and prompts (not needed at runtime; content/ is kept)
+README.md
+AGENTS.md
+CLAUDE.md
+CONTEXT.md
+CONTEXT-PWA.md
+mockup.html
+draft-pwa.html
+plan-*.prompt.md
+
+# Memory / local notes
+.memories

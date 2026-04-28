@@ -1,0 +1,14 @@
+services:
+  app:
+    build: .
+    image: draft:local
+    env_file:
+      - .env
+    ports:
+      - "3000:3000"
+    networks:
+      - draft
+
+networks:
+  draft:
+    driver: bridge

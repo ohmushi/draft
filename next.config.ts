@@ -11,6 +11,10 @@ const withMDX = createMDX({
 })
 
 export default withMDX({
-    output: 'export',
+    output: 'standalone',
     pageExtensions: ['ts', 'tsx', 'mdx'],
+    outputFileTracingIncludes: {
+        '/': ['./content/entries/**/*'],
+        '/entry/[slug]': ['./content/entries/**/*'],
+    },
 })

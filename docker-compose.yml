@@ -1,0 +1,62 @@
+services:
+  app:
+    build: .
+    image: draft:latest
+    restart: unless-stopped
+    env_file:
+      - .env
+    expose:
+      - "3000"
+    networks:
+      - draft
+    # En prod, Dokploy + Traefik gèrent le routage et le TLS.
+    # Pour exposer en local, décommenter :
+    # ports:
+    #   - "3000:3000"
+
+    # Si un jour les MDX sont écrits au runtime (au lieu d'être pushés sur GitHub),
+    # monter un volume persistant pour content/ :
+    # volumes:
+    #   - content:/app/content
+
+
+  # minio:
+  #   image: minio/minio:latest
+  #   restart: unless-stopped
+  #   command: server /data --console-address ":9001"
+  #   environment:
+  #     MINIO_ROOT_USER: ${MINIO_ROOT_USER}
+  #     MINIO_ROOT_PASSWORD: ${MINIO_ROOT_PASSWORD}
+  #   volumes:
+  #     - minio_data:/data
+  #   networks:
+  #     - draft
+  #   expose:
+  #     - "9000"
+  #     - "9001"
+  #
+  # postgres:
+  #   image: postgres:17-alpine
+  #   restart: unless-stopped
+  #   environment:
+  #     POSTGRES_USER: ${POSTGRES_USER}
+  #     POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+  #     POSTGRES_DB: ${POSTGRES_DB}
+  #   volumes:
+  #     - pg_data:/var/lib/postgresql/data
+  #   networks:
+  #     - draft
+  #   healthcheck:
+  #     test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER} -d ${POSTGRES_DB}"]
+  #     interval: 10s
+  #     timeout: 5s
+  #     retries: 5
+
+networks:
+  draft:
+    driver: bridge
+
+# volumes:
+#   content:
+#   minio_data:
+#   pg_data:
