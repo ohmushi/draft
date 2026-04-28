@@ -102,36 +102,27 @@ Ces composants enrichissent les entrées au-delà du markdown standard :
 | Couche | Choix | Raison |
 |---|---|---|
 | Framework | **Next.js** (App Router) | Déjà maîtrisé, pas de surprise |
-| Contenu | **MDX** | Markdown + composants React inline |
-| Rendu | **Standalone** (`output: 'standalone'`) | Routes serveur actives (PWA `/api/entry`), SSG conservé pour le flux |
+| Contenu | **PostgreSQL** via Prisma 7 | Entrées stockées en base, MDX compilé au runtime (`next-mdx-remote`) |
+| Rendu | **SSR dynamique** (`force-dynamic`) | Données viennent de la DB à chaque requête |
 | Hébergement | **Dokploy** (serveur perso, Docker + compose) | App dynamique, Traefik gère le TLS |
 | Style | **CSS Modules ou globals.css** | Pas de sur-ingénierie |
 
-### Dépendances
+### Dépendances clés
 ```bash
-npx create-next-app@latest draft --typescript --tailwind --app --no-src-dir
-cd draft
-npm install @next/mdx @mdx-js/loader @mdx-js/react
-npm install @types/mdx
-npm install gray-matter
-npm install remark-frontmatter remark-mdx-frontmatter
+npm install @prisma/client @prisma/adapter-pg next-mdx-remote
+npm install -D prisma
 ```
 
 ### `next.config.ts`
 ```ts
-import createMDX from '@next/mdx'
+import type { NextConfig } from 'next'
 
-const withMDX = createMDX({
-  options: {
-    remarkPlugins: [],
-    rehypePlugins: [],
-  },
-})
+const config: NextConfig = {
+  output: 'standalone',
+  pageExtensions: ['ts', 'tsx'],
+}
 
-export default withMDX({
-  output: 'export',
-  pageExtensions: ['ts', 'tsx', 'mdx'],
-})
+export default config
 ```
 
 ---
@@ -140,64 +131,56 @@ export default withMDX({
 
 ```
 draft/
-├── content/
-│   └── entries/
-│       ├── 2026-04-20-pipeline-rendu.mdx
-│       ├── 2026-04-18-portrait-jour-1.mdx
-│       └── ...                          ← une entrée = un fichier MDX
+├── prisma/
+│   ├── schema.prisma                    ← modèle Entry (id, slug, date, tag, time, content)
+│   └── migrations/                      ← migrations SQL générées par Prisma
 ├── app/
-│   ├── page.tsx                         ← flux (accueil), liste toutes les entrées
+│   ├── page.tsx                         ← flux (accueil), SSR dynamique, compileMDX
 │   ├── entry/
 │   │   └── [slug]/
-│   │       └── page.tsx                 ← page individuelle d'une entrée
+│   │       └── page.tsx                 ← page individuelle, SSR dynamique, compileMDX
+│   ├── api/
+│   │   └── entry/
+│   │       └── route.ts                 ← POST : insert en DB + revalidatePath
 │   ├── layout.tsx                       ← header, footer, fonts
 │   └── globals.css                      ← variables CSS, styles globaux
 ├── components/
 │   ├── EntryCard.tsx                    ← une entrée dans le flux
-│   ├── Sticky.tsx                       ← post-it jaune
-│   ├── Annotation.tsx                   ← note rouge en marge
-│   └── CodeBlock.tsx                    ← bloc de code stylisé
+│   ├── Sticky.tsx                       ← post-it jaune (composant MDX)
+│   ├── Annotation.tsx                   ← note rouge en marge (composant MDX)
+│   └── CodeBlock.tsx                    ← bloc de code stylisé (composant MDX)
 ├── lib/
-│   └── entries.ts                       ← lecture des fichiers MDX, parsing
+│   ├── db.ts                            ← singleton Prisma (lazy, PrismaPg adapter)
+│   ├── entries.ts                       ← getAllEntries / getEntryBySlug via Prisma
+│   └── generated/prisma/               ← client Prisma généré (ne pas éditer)
 ├── public/
-├── mdx-components.tsx                   ← provider global des composants MDX
+├── Dockerfile                           ← multi-stage, standalone, migrate deploy
+├── docker-compose.yml                   ← prod (Dokploy) : app + postgres
+├── docker-compose.local.yml             ← local : ports exposés
 └── next.config.ts
 ```
 
-> `content/` est **hors de `app/`** intentionnellement — c'est du contenu, pas du code.
-
 ---
 
-## Format d'une entrée MDX
+## Format d'une entrée
 
-Le nom de fichier fait office de slug et de date — pas besoin de les répéter dans le frontmatter.
+Une entrée = une ligne dans la table `Entry` de PostgreSQL.
 
-**Convention de nommage :** `YYYY-MM-DD-titre-court.mdx`
+| Champ | Type | Description |
+|---|---|---|
+| `id` | `Int` | PK auto-increment |
+| `slug` | `String` | Unique — `YYYY-MM-DD-<timestamp>` |
+| `date` | `String` | Date de création `YYYY-MM-DD` |
+| `tag` | `String?` | Tag optionnel : `dev`, `dessin`, `music`, `ecriture` |
+| `time` | `String?` | Heure `HH:MM` (optionnel) |
+| `content` | `String` | Corps MDX brut (sans frontmatter) |
+| `createdAt` | `DateTime` | Timestamp automatique |
 
-**Frontmatter minimal :**
-```yaml
----
-tag: dev
----
-```
+Le champ `content` accepte du MDX : markdown standard + composants `<Sticky>`, `<Annotation>`, `<CodeBlock>`. Le rendu est compilé au runtime via `next-mdx-remote/rsc`.
 
-**Exemple d'entrée complète :**
-```mdx
----
-tag: dessin
----
+### Créer une entrée
 
-Premier essai sérieux de portrait. J'ai regardé une vidéo de 40 minutes sur les
-proportions du visage humain, pris des notes, puis... dessiné quelque chose qui
-ressemble à une pomme de terre avec des yeux.
-
-![esquisse portrait jour 1](/images/entries/portrait-jour-1.jpg)
-
-Ce qui est bizarre c'est que j'ai quand même trouvé ça satisfaisant. Pas le
-résultat — le geste.
-
-<Sticky>la main doit apprendre ce que l'œil voit déjà</Sticky>
-```
+Via la PWA `/studio` (POST sur `/api/entry`) ou directement en DB.
 
 **Exemple avec code et annotation :**
 ```mdx
