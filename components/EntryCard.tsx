@@ -12,7 +12,7 @@ const TAG_CLASS: Record<string, string> = {
   meta: 'tag-meta',
 }
 
-function formatDate(dateStr: string, time?: string): string {
+function formatDate(dateStr: string, time?: string | null): string {
   const d = new Date(dateStr + 'T12:00:00')
   const formatted = d.toLocaleDateString('fr-FR', {
     day: 'numeric',
@@ -31,7 +31,7 @@ export default function EntryCard({
   index: number
   children: ReactNode
 }) {
-  const tagClass = TAG_CLASS[entry.tag] ?? 'tag-autre'
+  const tagClass = entry.tag ? (TAG_CLASS[entry.tag] ?? 'tag-autre') : 'tag-autre'
 
   return (
     <article
@@ -46,7 +46,7 @@ export default function EntryCard({
         >
           <span className="entry-date">{formatDate(entry.date, entry.time)}</span>
         </Link>
-        <span className={`entry-tag ${tagClass}`}>{entry.tag}</span>
+        {entry.tag && <span className={`entry-tag ${tagClass}`}>{entry.tag}</span>}
       </div>
       <div className="entry-body">{children}</div>
     </article>

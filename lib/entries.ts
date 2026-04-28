@@ -1,51 +1,26 @@
-import fs from 'fs'
-import path from 'path'
-import matter from 'gray-matter'
-
-const ENTRIES_DIR = path.join(process.cwd(), 'content/entries')
+import { getPrisma } from './db'
 
 export type Entry = {
+  id: number
   slug: string
   date: string
-  tag: string
-  time?: string
+  tag: string | null
+  time: string | null
+  content: string
 }
 
-export function getAllEntries(): Entry[] {
-  if (!fs.existsSync(ENTRIES_DIR)) return []
-
-  const files = fs
-    .readdirSync(ENTRIES_DIR)
-    .filter((f) => f.endsWith('.mdx'))
-    .sort()
-    .reverse()
-
-  return files.map((filename) => {
-    const slug = filename.replace(/\.mdx$/, '')
-    const datePart = slug.slice(0, 10)
-    const raw = fs.readFileSync(path.join(ENTRIES_DIR, filename), 'utf-8')
-    const { data } = matter(raw)
-
-    return {
-      slug,
-      date: datePart,
-      tag: (data.tag as string) ?? 'autre',
-      time: (data.time as string | undefined),
-    }
+export async function getAllEntries(): Promise<Entry[]> {
+  return getPrisma().entry.findMany({
+    orderBy: { createdAt: 'desc' },
   })
 }
 
-export function getEntryBySlug(slug: string) {
-  const filepath = path.join(ENTRIES_DIR, `${slug}.mdx`)
-  const raw = fs.readFileSync(filepath, 'utf-8')
-  const { data, content } = matter(raw)
-  return { slug, date: slug.slice(0, 10), tag: (data.tag as string) ?? 'autre', time: (data.time as string | undefined), content }
+export async function getEntryBySlug(slug: string): Promise<Entry> {
+  const entry = await getPrisma().entry.findUniqueOrThrow({ where: { slug } })
+  return entry
 }
 
-export function getAllSlugs(): string[] {
-  if (!fs.existsSync(ENTRIES_DIR)) return []
-  return fs
-    .readdirSync(ENTRIES_DIR)
-    .filter((f) => f.endsWith('.mdx'))
-    .map((f) => f.replace(/\.mdx$/, ''))
+export async function getAllSlugs(): Promise<string[]> {
+  const entries = await getPrisma().entry.findMany({ select: { slug: true } })
+  return entries.map((e) => e.slug)
 }

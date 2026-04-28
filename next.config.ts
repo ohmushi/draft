@@ -1,20 +1,8 @@
-import createMDX from '@next/mdx'
+import type { NextConfig } from 'next'
 
-const withMDX = createMDX({
-    options: {
-        remarkPlugins: [
-            'remark-frontmatter',
-            'remark-mdx-frontmatter',
-        ],
-        rehypePlugins: [],
-    },
-})
-
-export default withMDX({
+const config: NextConfig = {
     output: 'standalone',
-    pageExtensions: ['ts', 'tsx', 'mdx'],
-    outputFileTracingIncludes: {
-        '/': ['./content/entries/**/*'],
-        '/entry/[slug]': ['./content/entries/**/*'],
-    },
-})
+    pageExtensions: ['ts', 'tsx'],
+}
+
+export default config

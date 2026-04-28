@@ -9,16 +9,27 @@ services:
       - "3000"
     networks:
       - draft
-    # En prod, Dokploy + Traefik gèrent le routage et le TLS.
-    # Pour exposer en local, décommenter :
-    # ports:
-    #   - "3000:3000"
+    depends_on:
+      postgres:
+        condition: service_healthy
 
-    # Si un jour les MDX sont écrits au runtime (au lieu d'être pushés sur GitHub),
-    # monter un volume persistant pour content/ :
-    # volumes:
-    #   - content:/app/content
-
+  postgres:
+    image: postgres:17-alpine
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+      POSTGRES_DB: ${POSTGRES_DB}
+      DATABASE_URL: ${DATABASE_URL}
+    volumes:
+      - pg_data:/var/lib/postgresql/data
+    networks:
+      - draft
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER} -d ${POSTGRES_DB}"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
 
   # minio:
   #   image: minio/minio:latest
@@ -34,29 +45,11 @@ services:
   #   expose:
   #     - "9000"
   #     - "9001"
-  #
-  # postgres:
-  #   image: postgres:17-alpine
-  #   restart: unless-stopped
-  #   environment:
-  #     POSTGRES_USER: ${POSTGRES_USER}
-  #     POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
-  #     POSTGRES_DB: ${POSTGRES_DB}
-  #   volumes:
-  #     - pg_data:/var/lib/postgresql/data
-  #   networks:
-  #     - draft
-  #   healthcheck:
-  #     test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER} -d ${POSTGRES_DB}"]
-  #     interval: 10s
-  #     timeout: 5s
-  #     retries: 5
 
 networks:
   draft:
     driver: bridge
 
-# volumes:
-#   content:
-#   minio_data:
-#   pg_data:
+volumes:
+  pg_data:
+  # minio_data:
