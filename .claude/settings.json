@@ -1,0 +1,13 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(npx vitest run*)",
+      "Bash(npx vitest*)",
+      "Bash(npx tsc --noEmit)",
+      "Bash(npx eslint*)",
+      "Bash(npx prisma*)",
+      "Bash(npm run*)",
+      "Bash(npm install*)"
+    ]
+  }
+}

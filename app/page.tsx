@@ -1,4 +1,5 @@
-import { getAllEntries } from '@/lib/entries'
+import { listEntries } from '@/application/list-entries'
+import { PrismaEntryRepository } from '@/infrastructure/prisma/entry-repository'
 import EntryCard from '@/components/EntryCard'
 import { compileMDX } from 'next-mdx-remote/rsc'
 import Sticky from '@/components/Sticky'
@@ -10,7 +11,7 @@ export const dynamic = 'force-dynamic'
 const mdxComponents = { Sticky, Annotation, CodeBlock }
 
 export default async function Home() {
-  const entries = await getAllEntries()
+  const entries = await listEntries(new PrismaEntryRepository())
 
   const compiled = await Promise.all(
     entries.map((entry) =>
