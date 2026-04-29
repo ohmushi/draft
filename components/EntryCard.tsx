@@ -1,4 +1,4 @@
-import type { Entry } from '@/lib/entries'
+import type { Entry } from '@/domain/entry'
 import type { ReactNode } from 'react'
 import Link from 'next/link'
 

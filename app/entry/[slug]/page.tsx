@@ -1,4 +1,5 @@
-import { getEntryBySlug } from '@/lib/entries'
+import { getEntry } from '@/application/get-entry'
+import { PrismaEntryRepository } from '@/infrastructure/prisma/entry-repository'
 import { compileMDX } from 'next-mdx-remote/rsc'
 import Sticky from '@/components/Sticky'
 import Annotation from '@/components/Annotation'
@@ -19,9 +20,13 @@ const TAG_CLASS: Record<string, string> = {
   meta: 'tag-meta',
 }
 
-function formatDate(dateStr: string, time?: string | null): string {
-  const d = new Date(dateStr + 'T12:00:00')
-  const formatted = d.toLocaleDateString('fr-FR', { day: 'numeric', month: 'short', year: 'numeric' })
+function formatDisplayDate(dateStr: string, time?: string | null): string {
+  const date = new Date(dateStr + 'T12:00:00')
+  const formatted = date.toLocaleDateString('fr-FR', {
+    day: 'numeric',
+    month: 'short',
+    year: 'numeric',
+  })
   return time ? `${formatted} — ${time}` : formatted
 }
 
@@ -32,13 +37,10 @@ export default async function EntryPage({
 }) {
   const { slug } = await params
 
-  let entry: Awaited<ReturnType<typeof getEntryBySlug>>
-  try {
-    entry = await getEntryBySlug(slug)
-  } catch {
-    notFound()
-  }
+  const result = await getEntry(new PrismaEntryRepository(), slug)
+  if (!result.ok) notFound()
 
+  const entry = result.value
   const { content } = await compileMDX({ source: entry.content, components: mdxComponents })
   const tagClass = entry.tag ? (TAG_CLASS[entry.tag] ?? 'tag-autre') : 'tag-autre'
 
@@ -46,7 +48,7 @@ export default async function EntryPage({
     <main>
       <article className="entry">
         <div className="entry-meta">
-          <span className="entry-date">{formatDate(entry.date, entry.time)}</span>
+          <span className="entry-date">{formatDisplayDate(entry.date, entry.time)}</span>
           {entry.tag && <span className={`entry-tag ${tagClass}`}>{entry.tag}</span>}
         </div>
         <div className="entry-body">
