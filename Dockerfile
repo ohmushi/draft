@@ -11,6 +11,7 @@ COPY package.json package-lock.json ./
 RUN npm --no-fund --no-update-notifier ci
 COPY prisma/ ./prisma
 COPY . .
+RUN mkdir -p public
 RUN npx prisma generate
 RUN npm run build
 
