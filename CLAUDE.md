@@ -6,6 +6,7 @@
 @.claude/instructions/architecture.md
 @.claude/instructions/testing.md
 @.claude/instructions/clean-code.md
+@.claude/instructions/documentation.md
 
 # Instructions Claude
 
@@ -15,6 +16,9 @@
 - Toujours consulter `mockup.html` — c'est la référence visuelle absolue.
 - Toujours consulter `CONTEXT-PWA.md` avant de coder — c'est la spec du PWA.
 - Toujours consulter `draft-pwa.html` — c'est la référence visuelle absolue pour la PWA.
+
+## Documentation
+Suivre `.claude/instructions/documentation.md` — toute modification non triviale met à jour `CONTEXT.md`, `README.md` ou l'instruction concernée. Les décisions d'architecture donnent lieu à un ADR dans `docs/adr/`.
 
 ## Architecture
 Suivre strictement les couches définies dans `.claude/instructions/architecture.md`.
