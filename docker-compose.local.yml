@@ -1,7 +1,6 @@
 services:
   app:
     build: .
-    image: draft:local
     env_file:
       - .env
     ports:
