@@ -2,6 +2,15 @@
 
 Atelier personnel — flux chronologique unique. Voir [CONTEXT.md](CONTEXT.md) pour la vision.
 
+## Navigation
+
+| Route | Description |
+|---|---|
+| `/` | Flux chronologique de toutes les entrées |
+| `/entry/[slug]` | Entrée individuelle |
+| `/studio` | PWA de saisie rapide (éclairs) — accessible depuis le flux via le lien header ou le FAB |
+| `/about` | Page à propos |
+
 ## Dev local
 
 ```bash

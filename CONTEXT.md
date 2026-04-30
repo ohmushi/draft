@@ -278,6 +278,14 @@ export function useMDXComponents(components: MDXComponents): MDXComponents {
 | `/` | `app/page.tsx` | Flux chronologique de toutes les entrées |
 | `/entry/[slug]` | `app/entry/[slug]/page.tsx` | Entrée individuelle complète |
 | `/about` | `app/about/page.tsx` | Page à propos (à écrire plus tard) |
+| `/studio` | `app/studio/page.tsx` | PWA de saisie rapide (éclairs) |
+
+### Accès au studio depuis le flux
+
+Deux points d'entrée vers `/studio` sont présents sur le flux :
+
+- **Lien header** : icône crayon + label `éclair` aligné à droite en face du logo (`.studio-link`). JetBrains Mono 0.62rem uppercase, `--ink-faint` → `--ink` au hover.
+- **FAB** : bouton rond fixe (`position: fixed`, `bottom: 2rem`, `right: 2rem`, `z-index: 20`), fond `--ink`, icône `+` SVG blanche. Sur viewport ≥ 720px, s'aligne avec la colonne de contenu via `right: calc((100vw - 680px) / 2 - 1rem)`.
 
 ---
 
