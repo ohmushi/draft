@@ -2,7 +2,7 @@
 
 Atelier personnel — flux chronologique unique. Voir [CONTEXT.md](CONTEXT.md) pour la vision.
 
-## Routes
+## Navigation
 
 | Route | Description |
 |---|---|
