@@ -14,6 +14,12 @@ Draft a deux portes d'entrée pour créer une entrée :
 
 Un éclair est une entrée comme une autre dans le flux. Même format de sortie, même fichier MDX dans `content/entries/`. Deux portes, un seul flux.
 
+### Accès depuis le flux
+
+`/studio` est accessible depuis le flux (`/`) via deux points d'entrée :
+- **Lien header** : icône crayon + label `éclair`, aligné à droite en face du logo
+- **FAB** : bouton `+` fixe en bas à droite, toujours visible pendant le scroll
+
 ### Philosophie de l'éclair
 > "Comme prendre une note sur mon iPhone"
 
