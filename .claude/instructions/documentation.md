@@ -34,6 +34,12 @@ Mettre à jour l'instruction concernée dès qu'une règle évolue (architecture
 ### `.env.example`
 Tenir à jour avec **toutes** les variables utilisées dans le code, commentées si désactivées.
 
+### `.claude/instructions/todo.md`
+Mettre à jour après toute modification qui :
+- complète un item → cocher ✅ avec la date (ex: `✅ 2026-04-30`)
+- révèle un nouveau besoin → ajouter un item ⬜ avec contexte et intention
+- rend un item obsolète → le noter dans l'item et le déplacer en ✅ avec la raison
+
 ---
 
 ## Quand créer un nouveau document

@@ -7,6 +7,7 @@
 @.claude/instructions/testing.md
 @.claude/instructions/clean-code.md
 @.claude/instructions/documentation.md
+@.claude/instructions/todo.md
 
 # Instructions Claude
 
