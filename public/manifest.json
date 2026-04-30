@@ -1,0 +1,11 @@
+{
+  "name": "Draft",
+  "short_name": "Draft",
+  "display": "standalone",
+  "background_color": "#F5F0E8",
+  "theme_color": "#1C1A17",
+  "start_url": "/studio",
+  "icons": [
+    { "src": "/favicon.ico", "sizes": "any", "type": "image/x-icon" }
+  ]
+}
