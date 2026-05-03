@@ -2,9 +2,16 @@ import { NextRequest, NextResponse } from 'next/server'
 import { revalidatePath } from 'next/cache'
 import { createEntry } from '@/application/create-entry'
 import { PrismaEntryRepository } from '@/infrastructure/prisma/entry-repository'
+import { MinioMediaStorage } from '@/infrastructure/minio/media-storage'
+import { getMinioClient } from '@/lib/minio'
 import { isEntryTag } from '@/domain/entry'
 
 export const runtime = 'nodejs'
+
+function generateMediaFilename(file: File): string {
+  const ext = file.name.includes('.') ? file.name.slice(file.name.lastIndexOf('.')) : ''
+  return `${Date.now()}-${Math.random().toString(36).slice(2, 8)}${ext}`
+}
 
 export async function POST(request: NextRequest): Promise<NextResponse> {
   let formData: FormData
@@ -16,18 +23,32 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
 
   const rawText = formData.get('text')
   const rawTag = formData.get('tag')
+  const photoEntries = formData.getAll('photos')
 
   const text = typeof rawText === 'string' ? rawText.trim() : ''
   const rawTagStr = typeof rawTag === 'string' ? rawTag.trim() : ''
   const tag = rawTagStr && isEntryTag(rawTagStr) ? rawTagStr : null
+  const photos = photoEntries.filter((entry): entry is File => entry instanceof File)
 
-  if (text.length === 0) {
-    return NextResponse.json({ ok: false, error: 'Texte vide' }, { status: 400 })
+  if (text.length === 0 && photos.length === 0) {
+    return NextResponse.json({ ok: false, error: 'Texte et médias vides' }, { status: 400 })
   }
 
   try {
+    let mediaUrls: readonly string[] = []
+
+    if (photos.length > 0) {
+      const bucket = process.env.MINIO_BUCKET ?? 'draft-media'
+      const publicUrl = process.env.MINIO_PUBLIC_URL
+      if (!publicUrl) throw new Error('MINIO_PUBLIC_URL is not set')
+      const storage = new MinioMediaStorage(getMinioClient(), bucket, publicUrl)
+      mediaUrls = await Promise.all(
+        photos.map(photo => storage.upload(photo, generateMediaFilename(photo)))
+      )
+    }
+
     const repository = new PrismaEntryRepository()
-    const entry = await createEntry(repository, { text, tag })
+    const entry = await createEntry(repository, { text, tag, mediaUrls })
     revalidatePath('/', 'page')
     return NextResponse.json({ ok: true, slug: entry.slug })
   } catch (error) {

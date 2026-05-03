@@ -8,7 +8,7 @@ const fixedClock = () => new Date(2026, 3, 29, 14, 30, 0)
 describe('getEntry', () => {
   it('should return the entry when it exists', async () => {
     const repository = new InMemoryEntryRepository()
-    const created = await createEntry(repository, { text: 'contenu', tag: 'dev' }, fixedClock)
+    const created = await createEntry(repository, { text: 'contenu', tag: 'dev', mediaUrls: [] }, fixedClock)
     const result = await getEntry(repository, created.slug)
     expect(result.ok).toBe(true)
     if (result.ok) {
@@ -29,8 +29,8 @@ describe('getEntry', () => {
 
   it('should find an entry by its exact slug', async () => {
     const repository = new InMemoryEntryRepository()
-    await createEntry(repository, { text: 'first', tag: null }, fixedClock)
-    const created = await createEntry(repository, { text: 'target', tag: 'dessin' }, () => new Date(2026, 3, 29, 15, 0, 0))
+    await createEntry(repository, { text: 'first', tag: null, mediaUrls: [] }, fixedClock)
+    const created = await createEntry(repository, { text: 'target', tag: 'dessin', mediaUrls: [] }, () => new Date(2026, 3, 29, 15, 0, 0))
     const result = await getEntry(repository, created.slug)
     expect(result.ok).toBe(true)
     if (result.ok) {
