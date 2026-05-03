@@ -19,6 +19,7 @@ export type Entry = {
 export type CreateEntryInput = {
   readonly text: string
   readonly tag: EntryTag | null
+  readonly mediaUrls: readonly string[]
 }
 
 export type NewEntry = {

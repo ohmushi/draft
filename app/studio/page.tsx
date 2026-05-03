@@ -103,6 +103,9 @@ export default function StudioPage() {
     const formData = new FormData()
     formData.append('text', text.trim())
     if (selectedTag !== null) formData.append('tag', selectedTag)
+    for (const photo of photos) {
+      formData.append('photos', photo.file)
+    }
 
     try {
       const response = await fetch('/api/entry', { method: 'POST', body: formData })
@@ -123,7 +126,7 @@ export default function StudioPage() {
     } catch {
       setSubmitState('error')
     }
-  }, [canPublish, text, selectedTag])
+  }, [canPublish, text, selectedTag, photos])
 
   return (
     <div className={styles.phoneBg}>

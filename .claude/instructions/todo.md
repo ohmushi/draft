@@ -17,7 +17,7 @@ Après toute modification non triviale :
 
 ## Studio — Médias
 
-### ⬜ Upload réel des photos
+### ✅ Upload réel des photos — 2026-05-03
 **Contexte** : L'UI de sélection de photo est en place dans `/studio`. La photo s'affiche en preview locale (base64 via FileReader), mais n'est jamais envoyée au serveur. La `formData` POST vers `/api/entry` ne contient que `text` et `tag`.  
 **Intention** : Envoyer la photo dans la formData (`photos[]`), l'uploader vers MinIO depuis la route API, injecter l'URL publique dans le MDX généré comme `![](https://minio…)`.  
 **Dépend de** : Intégration MinIO.
@@ -32,7 +32,7 @@ Après toute modification non triviale :
 **Intention** : Ajouter un `<audio>` natif minimaliste dans la vignette, ou un bouton play/pause SVG qui rejoue le blob local. Doit rester dans l'esprit graphique du projet (pas de player HTML5 par défaut).  
 **Dépend de** : Enregistrement audio réel.
 
-### ⬜ Intégration MinIO (stockage des médias)
+### ✅ Intégration MinIO (stockage des médias) — 2026-05-03
 **Contexte** : MinIO est mentionné dans CONTEXT-PWA.md comme solution de stockage des médias, mais aucune infrastructure n'existe dans le code. Il n'y a ni client, ni adaptateur, ni variable d'environnement active.  
 **Intention** : Créer une interface `MediaStorage` dans `domain/` (méthode `upload(file, filename) → url`), implémenter `MinioMediaStorage` dans `infrastructure/minio/`, l'injecter dans la route API. Ajouter les variables `MINIO_*` dans `.env.example`.
 
@@ -100,4 +100,4 @@ Après toute modification non triviale :
 
 ## Complétés ✅
 
-*(Rien encore — les premières entrées apparaîtront ici au fil des implémentations.)*
+Les items complétés sont marqués inline dans leurs sections respectives.
