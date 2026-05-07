@@ -39,9 +39,7 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
 
     if (photos.length > 0) {
       const bucket = process.env.MINIO_BUCKET ?? 'draft-media'
-      const publicUrl = process.env.MINIO_PUBLIC_URL
-      if (!publicUrl) throw new Error('MINIO_PUBLIC_URL is not set')
-      const storage = new MinioMediaStorage(getMinioClient(), bucket, publicUrl)
+      const storage = new MinioMediaStorage(getMinioClient(), bucket)
       mediaUrls = await Promise.all(
         photos.map(photo => storage.upload(photo, generateMediaFilename(photo)))
       )

@@ -4,12 +4,10 @@ import type { MediaStorage } from '@/domain/media'
 export class MinioMediaStorage implements MediaStorage {
   private readonly client: Client
   private readonly bucket: string
-  private readonly publicUrl: string
 
-  constructor(client: Client, bucket: string, publicUrl: string) {
+  constructor(client: Client, bucket: string) {
     this.client = client
     this.bucket = bucket
-    this.publicUrl = publicUrl
   }
 
   async upload(file: File, filename: string): Promise<string> {
@@ -18,7 +16,8 @@ export class MinioMediaStorage implements MediaStorage {
     await this.client.putObject(this.bucket, filename, buffer, buffer.length, {
       'Content-Type': file.type,
     })
-    return `${this.publicUrl}/${this.bucket}/${filename}`
+
+    return `/api/media?object=${encodeURIComponent(filename)}`
   }
 
   private async ensureBucketExists(): Promise<void> {
