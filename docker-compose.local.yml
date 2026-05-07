@@ -1,10 +1,16 @@
 services:
   app:
-    build: .
+    build:
+      context: .
+      dockerfile: Dockerfile.dev
     env_file:
       - .env
     ports:
       - "3000:3000"
+    volumes:
+      - .:/app
+      - /app/node_modules
+      - /app/.next
     networks:
       - draft
     depends_on:
@@ -49,6 +55,21 @@ services:
       interval: 10s
       timeout: 5s
       retries: 3
+
+  # To use mc: docker compose -f .\docker-compose.local.yml run --rm -it --entrypoint bin/sh mc
+  # Or one line: docker compose -f .\docker-compose.local.yml run --rm --entrypoint "bin/sh -c mc ... && exit" mc
+  mc:
+    image: minio/mc
+    depends_on:
+      - minio
+    entrypoint: >
+      /bin/sh -c "
+        mc alias set draftminio http://minio:9000 ${MINIO_ACCESS_KEY} ${MINIO_SECRET_KEY} &&
+        mc mb draftminio/draft-media &&
+        exit 0
+      "
+    networks:
+      - draft
 
 networks:
   draft:
