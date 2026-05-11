@@ -12,7 +12,9 @@ type Photo = {
 }
 
 type AudioCapture = {
+  readonly blob: Blob
   readonly duration: number
+  readonly objectUrl: string
 }
 
 type SubmitState = 'idle' | 'loading' | 'success' | 'error'
@@ -37,10 +39,15 @@ export default function StudioPage() {
   const [isRecording, setIsRecording] = useState(false)
   const [recSeconds, setRecSeconds] = useState(0)
   const [audioCapture, setAudioCapture] = useState<AudioCapture | null>(null)
+  const [isPlaying, setIsPlaying] = useState(false)
   const [submitState, setSubmitState] = useState<SubmitState>('idle')
 
   const textareaRef = useRef<HTMLTextAreaElement>(null)
+  const audioRef = useRef<HTMLAudioElement>(null)
+  const mediaRecorderRef = useRef<MediaRecorder | null>(null)
+  const recordingChunksRef = useRef<Blob[]>([])
   const recTimerRef = useRef<ReturnType<typeof setInterval> | null>(null)
+  const pendingDurationRef = useRef<number>(0)
 
   useEffect(() => {
     textareaRef.current?.focus()
@@ -49,6 +56,9 @@ export default function StudioPage() {
   useEffect(() => {
     return () => {
       if (recTimerRef.current !== null) clearInterval(recTimerRef.current)
+      if (mediaRecorderRef.current?.state === 'recording') {
+        mediaRecorderRef.current.stop()
+      }
     }
   }, [])
 
@@ -76,25 +86,65 @@ export default function StudioPage() {
   }, [])
 
   const handleRemoveAudio = useCallback(() => {
+    if (audioCapture !== null) {
+      URL.revokeObjectURL(audioCapture.objectUrl)
+    }
     setAudioCapture(null)
-  }, [])
+    setIsPlaying(false)
+  }, [audioCapture])
 
-  const handleToggleRecording = useCallback(() => {
+  const handleToggleRecording = useCallback(async () => {
     if (isRecording) {
+      pendingDurationRef.current = recSeconds
       if (recTimerRef.current !== null) {
         clearInterval(recTimerRef.current)
         recTimerRef.current = null
       }
-      setIsRecording(false)
-      setAudioCapture({ duration: recSeconds })
+      mediaRecorderRef.current?.stop()
     } else {
-      setRecSeconds(0)
-      setIsRecording(true)
-      recTimerRef.current = setInterval(() => {
-        setRecSeconds(s => s + 1)
-      }, 1000)
+      try {
+        const stream = await navigator.mediaDevices.getUserMedia({ audio: true })
+        const recorder = new MediaRecorder(stream)
+        recordingChunksRef.current = []
+
+        recorder.ondataavailable = (event) => {
+          if (event.data.size > 0) {
+            recordingChunksRef.current.push(event.data)
+          }
+        }
+
+        recorder.onstop = () => {
+          const blob = new Blob(recordingChunksRef.current, { type: recorder.mimeType })
+          const objectUrl = URL.createObjectURL(blob)
+          setAudioCapture({ blob, duration: pendingDurationRef.current, objectUrl })
+          stream.getTracks().forEach(track => track.stop())
+          setIsRecording(false)
+        }
+
+        mediaRecorderRef.current = recorder
+        recorder.start()
+        setRecSeconds(0)
+        setIsRecording(true)
+        recTimerRef.current = setInterval(() => {
+          setRecSeconds(s => s + 1)
+        }, 1000)
+      } catch {
+        // getUserMedia non disponible ou permission refusée
+      }
     }
   }, [isRecording, recSeconds])
+
+  const handleTogglePlayback = useCallback(() => {
+    const audio = audioRef.current
+    if (audio === null) return
+    if (isPlaying) {
+      audio.pause()
+      setIsPlaying(false)
+    } else {
+      void audio.play()
+      setIsPlaying(true)
+    }
+  }, [isPlaying])
 
   const handleSubmit = useCallback(async () => {
     if (!canPublish) return
@@ -106,6 +156,10 @@ export default function StudioPage() {
     for (const photo of photos) {
       formData.append('photos', photo.file)
     }
+    if (audioCapture !== null) {
+      const ext = audioCapture.blob.type.includes('ogg') ? '.ogg' : '.webm'
+      formData.append('audio', audioCapture.blob, `audio${ext}`)
+    }
 
     try {
       const response = await fetch('/api/entry', { method: 'POST', body: formData })
@@ -115,10 +169,14 @@ export default function StudioPage() {
       }
       setSubmitState('success')
       setTimeout(() => {
+        if (audioCapture !== null) {
+          URL.revokeObjectURL(audioCapture.objectUrl)
+        }
         setText('')
         setSelectedTag(null)
         setPhotos([])
         setAudioCapture(null)
+        setIsPlaying(false)
         setRecSeconds(0)
         setSubmitState('idle')
         textareaRef.current?.focus()
@@ -126,7 +184,7 @@ export default function StudioPage() {
     } catch {
       setSubmitState('error')
     }
-  }, [canPublish, text, selectedTag, photos])
+  }, [canPublish, text, selectedTag, photos, audioCapture])
 
   return (
     <div className={styles.phoneBg}>
@@ -190,17 +248,39 @@ export default function StudioPage() {
                 </div>
               ))}
               {audioCapture !== null && (
-                <div className={`${styles.mediaThumb} ${styles.audioThumb}`}>
-                  <span>🎵</span>
-                  <span className={styles.audioLabel}>{formatDuration(audioCapture.duration)}</span>
-                  <button
-                    className={styles.thumbRemove}
-                    onClick={handleRemoveAudio}
-                    aria-label="Supprimer l'audio"
-                  >
-                    ×
-                  </button>
-                </div>
+                <>
+                  <audio
+                    ref={audioRef}
+                    src={audioCapture.objectUrl}
+                    onEnded={() => setIsPlaying(false)}
+                  />
+                  <div className={`${styles.mediaThumb} ${styles.audioThumb}`}>
+                    <button
+                      className={styles.audioPlayBtn}
+                      onClick={handleTogglePlayback}
+                      aria-label={isPlaying ? "Mettre en pause" : "Écouter l'enregistrement"}
+                    >
+                      {isPlaying ? (
+                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+                          <rect x="6" y="4" width="4" height="16" />
+                          <rect x="14" y="4" width="4" height="16" />
+                        </svg>
+                      ) : (
+                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+                          <polygon points="5 3 19 12 5 21 5 3" />
+                        </svg>
+                      )}
+                    </button>
+                    <span className={styles.audioLabel}>{formatDuration(audioCapture.duration)}</span>
+                    <button
+                      className={styles.thumbRemove}
+                      onClick={handleRemoveAudio}
+                      aria-label="Supprimer l'audio"
+                    >
+                      ×
+                    </button>
+                  </div>
+                </>
               )}
             </div>
           )}
