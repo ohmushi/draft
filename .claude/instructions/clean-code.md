@@ -68,3 +68,60 @@ type Result<T, E> =
 // 5. Utilitaires (@/lib/*)
 // 6. Composants (@/components/*)
 ```
+
+---
+
+## SVG et icônes — pattern de réutilisabilité
+
+### Isolation des SVG
+
+Tous les SVG doivent vivre dans `components/svg/`, jamais inline dans les composants React. Cela permet :
+- La réutilisation sans duplication
+- Une maintenance centralisée
+- Une meilleure organisation du code
+
+### Nommage des icônes
+
+| Type | Pattern | Exemple |
+|------|---------|---------|
+| Icône simple | `IconName.tsx` | `PlayIcon.tsx`, `HomeIcon.tsx` |
+| Icône de bouton | `IconNameButton.tsx` | `CameraIconButton.tsx`, `MicrophoneIconButton.tsx` |
+| Décoration/séparatrice | `FeatureName.tsx` | `WavyDividerIcon.tsx`, `TitleUnderlineIcon.tsx` |
+
+### Attributs SVG dans React
+
+```tsx
+// ✅ Correct — camelCase JSX, currentColor pour héritage
+export default function PlayIcon() {
+  return (
+    <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <polygon points="5 3 19 12 5 21" fill="currentColor" />
+    </svg>
+  )
+}
+
+// ❌ Incorrect — kebab-case (pas du JSX), couleur hardcodée
+<svg stroke-width="1.5" stroke="#2563A8">
+  <path d="..." />
+</svg>
+```
+
+### Propriété `currentColor`
+
+Utiliser `stroke="currentColor"` ou `fill="currentColor"` pour permettre l'héritage de couleur :
+
+```tsx
+// Parent contrôle la couleur via CSS
+<button style={{ color: '#C0392B' }}>
+  <PlayIcon />  ← hérite la couleur rouge
+</button>
+```
+
+### Quand refactor un SVG inline
+
+Si un SVG est hardcodé dans un composant et réutilisable ailleurs :
+
+1. **Extraire** : créer `components/svg/IconName.tsx`
+2. **Enregistrer** : ajouter l'export dans `components/svg/index.ts`
+3. **Importer** : `import { IconName } from './svg'`
+4. **Remplacer** : utiliser `<IconName />` à la place du SVG inline

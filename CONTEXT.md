@@ -91,6 +91,39 @@ Ces composants enrichissent les entrées au-delà du markdown standard :
 | `<AudioPlayer src="…">` | Player minimaliste fond crème-dark, bouton play/pause SVG, barre de progression 60fps | Enregistrements audio postés depuis le studio |
 | Image markdown `![](url)` | `<img>` fond crème-dark, bordure pointillée, `border-radius: 2px` | Esquisses, captures, photos depuis MinIO |
 
+### Organisation des SVG — `components/svg/`
+
+Tous les SVG sont isolés dans `components/svg/` pour garantir la réutilisabilité et maintenir une architecture propre.
+
+**Contenu du dossier :**
+- `IconName.svg` — fichier SVG brut (référence source)
+- `IconName.tsx` — composant React qui exporte l'SVG
+- `index.ts` — exports centralisés
+
+**Icônes disponibles :**
+| Icône | Fichier | Usage |
+|---|---|---|
+| Titre underline | `TitleUnderlineIcon.tsx` | Ligne ondulée rouge sous le logo Draft |
+| Wavy divider | `WavyDividerIcon.tsx` | Séparatrice wavy du flux principal |
+| PWA divider | `PwaWavyDividerIcon.tsx` | Séparatrice wavy du studio mobile |
+| Play | `PlayIcon.tsx` | Bouton lecture audio |
+| Pause | `PauseIcon.tsx` | Bouton pause audio |
+| Camera | `CameraIconButton.tsx` | Bouton photo dans le studio |
+| Microphone | `MicrophoneIconButton.tsx` | Bouton enregistrement audio dans le studio |
+
+**Pattern d'utilisation :**
+```tsx
+import { PlayIcon, PauseIcon } from '@/components/svg'
+
+export default function AudioPlayer() {
+  return (
+    <button>
+      {isPlaying ? <PauseIcon /> : <PlayIcon />}
+    </button>
+  )
+}
+```
+
 ### Animations
 - `fadeUp` au chargement des entrées (staggered, délai 0.05s par entrée)
 - `pulse` sur l'indicateur de scroll (2.5s, opacity 0.4→1)
@@ -146,10 +179,16 @@ draft/
 │   ├── layout.tsx                       ← header, footer, fonts
 │   └── globals.css                      ← variables CSS, styles globaux
 ├── components/
+│   ├── svg/
+│   │   ├── index.ts                     ← exports centralisés (TitleUnderlineIcon, PlayIcon, etc.)
+│   │   ├── IconName.tsx                 ← composants SVG réutilisables
+│   │   └── IconName.svg                 ← fichiers SVG bruts (référence)
 │   ├── EntryCard.tsx                    ← une entrée dans le flux
 │   ├── Sticky.tsx                       ← post-it jaune (composant MDX)
 │   ├── Annotation.tsx                   ← note rouge en marge (composant MDX)
-│   └── CodeBlock.tsx                    ← bloc de code stylisé (composant MDX)
+│   ├── CodeBlock.tsx                    ← bloc de code stylisé (composant MDX)
+│   ├── AudioPlayer.tsx                  ← player audio avec PlayIcon et PauseIcon
+│   └── PhotoGrid.tsx                    ← grille d'images (composant MDX)
 ├── lib/
 │   ├── db.ts                            ← singleton Prisma (lazy, PrismaPg adapter)
 │   ├── entries.ts                       ← getAllEntries / getEntryBySlug via Prisma

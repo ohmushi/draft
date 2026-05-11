@@ -38,9 +38,45 @@ infrastructure/
     entry-repository.ts      ← PrismaEntryRepository implements EntryRepository
   in-memory/
     entry-repository.ts      ← InMemoryEntryRepository (pour les tests uniquement)
+components/
+  svg/
+    index.ts         ← exports centralisés (TitleUnderlineIcon, WavyDividerIcon, etc.)
+    IconName.tsx     ← composants SVG réutilisables
+    IconName.svg     ← fichiers SVG bruts (référence)
 app/
   api/entry/route.ts ← injecte PrismaEntryRepository dans les use cases
 ```
+
+## Règle des SVG dans `components/`
+
+**Tous les SVG doivent être isolés dans `components/svg/`**, jamais inline dans les composants React.
+
+```tsx
+// ❌ Incorrect — SVG inline dans le composant
+export default function Button() {
+  return (
+    <button>
+      <svg viewBox="..."><path d="..." /></svg>
+    </button>
+  )
+}
+
+// ✅ Correct — SVG exporté depuis components/svg/
+import { IconName } from './svg'
+export default function Button() {
+  return (
+    <button>
+      <IconName />
+    </button>
+  )
+}
+```
+
+**Raisons :**
+- Réutilisabilité — une icône peut être utilisée dans plusieurs composants
+- Maintenabilité — modifier une icône se fait au même endroit
+- Testabilité — les SVG peuvent être testés indépendamment
+- Organisation — distinction claire entre logique et présentation
 
 ## Convention d'injection
 Les use cases reçoivent le repository en premier paramètre, puis les données en deuxième.
