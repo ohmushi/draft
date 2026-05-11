@@ -4,11 +4,29 @@ import { compileMDX } from 'next-mdx-remote/rsc'
 import Sticky from '@/components/Sticky'
 import Annotation from '@/components/Annotation'
 import CodeBlock from '@/components/CodeBlock'
+import PhotoGrid from '@/components/PhotoGrid'
+import AudioPlayer from '@/components/AudioPlayer'
 import { notFound } from 'next/navigation'
 
 export const dynamic = 'force-dynamic'
 
-const mdxComponents = { Sticky, Annotation, CodeBlock }
+function LegacyImg({ src, alt }: { src?: string; alt?: string }) {
+  if (typeof src !== 'string') return null
+  // eslint-disable-next-line @next/next/no-img-element
+  return <img src={src} alt={alt ?? ''} className="entry-img-legacy" />
+}
+
+function LegacyAudio({ src }: { src?: string }) {
+  if (typeof src !== 'string') return null
+  return <AudioPlayer src={src} />
+}
+
+const mdxComponents = {
+  Sticky, Annotation, CodeBlock,
+  PhotoGrid, AudioPlayer,
+  img: LegacyImg,
+  audio: LegacyAudio,
+}
 
 const TAG_CLASS: Record<string, string> = {
   dev: 'tag-dev',
@@ -46,7 +64,7 @@ export default async function EntryPage({
 
   return (
     <main>
-      <article className="entry">
+      <article className="entry entry--detail">
         <div className="entry-meta">
           <span className="entry-date">{formatDisplayDate(entry.date, entry.time)}</span>
           {entry.tag && <span className={`entry-tag ${tagClass}`}>{entry.tag}</span>}
