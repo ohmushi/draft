@@ -8,7 +8,7 @@ export function buildContent(
 ): string {
   const trimmed = text.trim()
   const imageMarkdown =
-    mediaUrls.length > 0 ? `<PhotoGrid urls={${JSON.stringify([...mediaUrls])}} />` : ''
+    mediaUrls.length > 0 ? `<PhotoGrid urls='${JSON.stringify([...mediaUrls])}' />` : ''
   const audioMarkdown = audioUrls.map(url => `<AudioPlayer src="${url}" />`).join('\n')
 
   const parts = [trimmed, imageMarkdown, audioMarkdown].filter(Boolean)

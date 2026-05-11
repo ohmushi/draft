@@ -52,7 +52,7 @@ describe('createEntry', () => {
       { text: '', tag: null, mediaUrls: ['https://mock-minio/photo.jpg'], audioUrls: [] },
       fixedClock,
     )
-    expect(entry.content).toBe('<PhotoGrid urls={["https://mock-minio/photo.jpg"]} />')
+    expect(entry.content).toBe('<PhotoGrid urls='["https://mock-minio/photo.jpg"]' />')
   })
 
   it('should append image markdown after text when both are present', async () => {
@@ -63,7 +63,7 @@ describe('createEntry', () => {
       fixedClock,
     )
     expect(entry.content).toBe(
-      'caption\n\n<PhotoGrid urls={["https://mock-minio/a.jpg","https://mock-minio/b.jpg"]} />',
+      'caption\n\n<PhotoGrid urls='["https://mock-minio/a.jpg","https://mock-minio/b.jpg"]' />',
     )
   })
 
@@ -97,7 +97,7 @@ describe('createEntry', () => {
       fixedClock,
     )
     expect(entry.content).toBe(
-      'note vocale\n\n<PhotoGrid urls={["https://mock-minio/img.jpg"]} />\n\n<AudioPlayer src="https://mock-minio/rec.webm" />',
+      'note vocale\n\n<PhotoGrid urls=\'["https://mock-minio/img.jpg"]\' />\n\n<AudioPlayer src="https://mock-minio/rec.webm" />',
     )
   })
 })
@@ -109,13 +109,13 @@ describe('buildContent', () => {
 
   it('should return PhotoGrid only when no text', () => {
     expect(buildContent('', ['https://cdn/img.jpg'], [])).toBe(
-      '<PhotoGrid urls={["https://cdn/img.jpg"]} />',
+      '<PhotoGrid urls='["https://cdn/img.jpg"]' />',
     )
   })
 
   it('should join text and PhotoGrid with a blank line', () => {
     expect(buildContent('note', ['https://cdn/a.jpg', 'https://cdn/b.jpg'], [])).toBe(
-      'note\n\n<PhotoGrid urls={["https://cdn/a.jpg","https://cdn/b.jpg"]} />',
+      'note\n\n<PhotoGrid urls='["https://cdn/a.jpg","https://cdn/b.jpg"]' />',
     )
   })
 
@@ -137,13 +137,13 @@ describe('buildContent', () => {
 
   it('should append AudioPlayer after PhotoGrid', () => {
     expect(buildContent('', ['https://cdn/img.jpg'], ['https://cdn/rec.webm'])).toBe(
-      '<PhotoGrid urls={["https://cdn/img.jpg"]} />\n\n<AudioPlayer src="https://cdn/rec.webm" />',
+      '<PhotoGrid urls='["https://cdn/img.jpg"]' />\n\n<AudioPlayer src="https://cdn/rec.webm" />',
     )
   })
 
   it('should order text then PhotoGrid then AudioPlayer', () => {
     expect(buildContent('texte', ['https://cdn/img.jpg'], ['https://cdn/rec.webm'])).toBe(
-      'texte\n\n<PhotoGrid urls={["https://cdn/img.jpg"]} />\n\n<AudioPlayer src="https://cdn/rec.webm" />',
+      'texte\n\n<PhotoGrid urls='["https://cdn/img.jpg"]' />\n\n<AudioPlayer src="https://cdn/rec.webm" />',
     )
   })
 })

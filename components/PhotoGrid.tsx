@@ -1,10 +1,15 @@
 type PhotoGridProps = {
-  readonly urls: readonly string[]
+  readonly urls?: readonly string[] | string
   readonly limit?: number
   readonly alt?: string
 }
 
-export default function PhotoGrid({ urls, limit, alt = '' }: PhotoGridProps) {
+export default function PhotoGrid({ urls: urlsProp, limit, alt = '' }: PhotoGridProps) {
+  const urls: readonly string[] =
+    typeof urlsProp === 'string'
+      ? (JSON.parse(urlsProp) as string[])
+      : (urlsProp ?? [])
+
   const visibleUrls = limit !== undefined ? urls.slice(0, limit) : urls
   const hiddenCount = urls.length - visibleUrls.length
 
