@@ -4,6 +4,7 @@ import Annotation from './components/Annotation'
 import CodeBlock from './components/CodeBlock'
 import PhotoGrid from './components/PhotoGrid'
 import AudioPlayer from './components/AudioPlayer'
+import EntryImage from './components/EntryImage'
 
 const components: MDXComponents = {
   PhotoGrid,
@@ -11,13 +12,7 @@ const components: MDXComponents = {
   Sticky,
   Annotation,
   CodeBlock,
-  img: ({ src, alt }) => {
-    if (typeof src !== 'string') return null
-    return (
-      // eslint-disable-next-line @next/next/no-img-element
-      <img src={src} alt={alt ?? ''} className="entry-img-legacy" />
-    )
-  },
+  img: EntryImage,
   audio: ({ src }) => {
     if (typeof src !== 'string') return null
     return <AudioPlayer src={src} />

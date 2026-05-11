@@ -6,26 +6,17 @@ import Annotation from '@/components/Annotation'
 import CodeBlock from '@/components/CodeBlock'
 import PhotoGrid from '@/components/PhotoGrid'
 import AudioPlayer from '@/components/AudioPlayer'
+import EntryImage from '@/components/EntryImage'
 import { notFound } from 'next/navigation'
 
 export const dynamic = 'force-dynamic'
 
-function LegacyImg({ src, alt }: { src?: string; alt?: string }) {
-  if (typeof src !== 'string') return null
-  // eslint-disable-next-line @next/next/no-img-element
-  return <img src={src} alt={alt ?? ''} className="entry-img-legacy" />
-}
-
-function LegacyAudio({ src }: { src?: string }) {
-  if (typeof src !== 'string') return null
-  return <AudioPlayer src={src} />
-}
-
 const mdxComponents = {
   Sticky, Annotation, CodeBlock,
   PhotoGrid, AudioPlayer,
-  img: LegacyImg,
-  audio: LegacyAudio,
+  img: EntryImage,
+  audio: ({ src }: { src?: string }) =>
+    typeof src === 'string' ? <AudioPlayer src={src} /> : null,
 }
 
 const TAG_CLASS: Record<string, string> = {

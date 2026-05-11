@@ -88,7 +88,8 @@ Ces composants enrichissent les entrées au-delà du markdown standard :
 | `<Sticky>` | Post-it jaune légèrement incliné | Pensée en marge, citation personnelle |
 | `<Annotation>` | Texte italique rouge avec bordure gauche | Note de renvoi, "→ revenir là-dessus" |
 | `<CodeBlock lang="js">` | Bloc monospace fond crème-dark, bordure bleue gauche | Extraits de code |
-| Image markdown standard | Placeholder hachuré, bordure pointillée | Esquisses, captures |
+| `<AudioPlayer src="…">` | Player minimaliste fond crème-dark, bouton play/pause SVG, barre de progression 60fps | Enregistrements audio postés depuis le studio |
+| Image markdown `![](url)` | `<img>` fond crème-dark, bordure pointillée, `border-radius: 2px` | Esquisses, captures, photos depuis MinIO |
 
 ### Animations
 - `fadeUp` au chargement des entrées (staggered, délai 0.05s par entrée)
