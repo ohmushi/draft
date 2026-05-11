@@ -59,3 +59,67 @@ describe('NomComposant', () => {
 - Composant pur : aucun state, aucun effet de bord, aucun data fetching
 - Props `readonly` par défaut
 - Toujours exporter en `default`
+
+---
+
+## Si le composant contient des SVG
+
+Tous les SVG doivent être isolés dans `components/svg/` pour permettre la réutilisabilité et maintenir une architecture propre.
+
+### Structure
+
+```
+components/
+├── NomComposant.tsx                 ← le composant principal (importe les icônes)
+├── NomComposant.test.tsx            ← tests
+└── svg/
+    ├── IconName.svg                 ← fichier SVG brut (référence)
+    ├── IconName.tsx                 ← composant React qui exporte l'SVG
+    └── index.ts                     ← exports centralisés
+```
+
+### Étapes
+
+1. **Créer le fichier SVG brut** dans `components/svg/IconName.svg`
+   ```svg
+   <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+     <path d="..." stroke="currentColor" strokeWidth="1.5" />
+   </svg>
+   ```
+
+2. **Créer le composant React** dans `components/svg/IconName.tsx`
+   ```tsx
+   export default function IconName() {
+     return (
+       <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+         <path d="..." stroke="currentColor" strokeWidth="1.5" />
+       </svg>
+     )
+   }
+   ```
+
+3. **Ajouter l'export** dans `components/svg/index.ts`
+   ```ts
+   export { default as IconName } from './IconName'
+   ```
+
+4. **Importer dans le composant principal**
+   ```tsx
+   import { IconName } from './svg'
+   
+   export default function NomComposant() {
+     return (
+       <button>
+         <IconName />
+       </button>
+     )
+   }
+   ```
+
+### Bonnes pratiques SVG
+
+- Utiliser `currentColor` pour permettre l'héritage de couleur du parent
+- Utiliser `strokeWidth` plutôt que `stroke-width` (JSX syntax)
+- Pas de couleurs hardcodées (`#C0392B`, `#2563A8`) — utiliser la palette CSS si besoin
+- Icônes simples: `viewBox="0 0 24 24"`, `strokeWidth="1.5"`, sans remplissage
+- Ajouter un commentaire dans le composant React si l'SVG est complexe

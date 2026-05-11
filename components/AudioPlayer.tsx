@@ -1,6 +1,7 @@
 'use client'
 
 import { useRef, useState } from 'react'
+import { PlayIcon, PauseIcon } from './svg'
 
 type AudioPlayerProps = {
   readonly src: string
@@ -99,36 +100,7 @@ export default function AudioPlayer({ src }: AudioPlayerProps) {
         onClick={handleToggle}
         aria-label={isPlaying ? 'Mettre en pause' : 'Lire'}
       >
-        {isPlaying ? (
-          <svg
-            width="16"
-            height="16"
-            viewBox="0 0 24 24"
-            fill="none"
-            stroke="currentColor"
-            strokeWidth="1.5"
-            strokeLinecap="round"
-            strokeLinejoin="round"
-            aria-hidden="true"
-          >
-            <rect x="6" y="4" width="4" height="16" />
-            <rect x="14" y="4" width="4" height="16" />
-          </svg>
-        ) : (
-          <svg
-            width="16"
-            height="16"
-            viewBox="0 0 24 24"
-            fill="none"
-            stroke="currentColor"
-            strokeWidth="1.5"
-            strokeLinecap="round"
-            strokeLinejoin="round"
-            aria-hidden="true"
-          >
-            <polygon points="5 3 19 12 5 21 5 3" />
-          </svg>
-        )}
+        {isPlaying ? <PauseIcon /> : <PlayIcon />}
       </button>
       <div className="audio-player__track">
         <div className="audio-player__bar">
