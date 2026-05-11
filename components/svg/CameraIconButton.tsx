@@ -1,0 +1,18 @@
+export default function CameraIconButton() {
+  return (
+    <svg
+      width="16"
+      height="16"
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="1.5"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+    >
+      <rect x="2" y="6" width="20" height="14" rx="2" />
+      <circle cx="12" cy="13" r="3.5" />
+      <path d="M8 6V5a1 1 0 0 1 1-1h6a1 1 0 0 1 1 1v1" />
+    </svg>
+  )
+}

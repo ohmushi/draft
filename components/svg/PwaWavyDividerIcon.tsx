@@ -1,0 +1,18 @@
+export default function PwaWavyDividerIcon() {
+  return (
+    <svg
+      viewBox="0 0 340 8"
+      fill="none"
+      xmlns="http://www.w3.org/2000/svg"
+    >
+      <path
+        d="M0 4 C40 1, 80 7, 130 4 S220 1.5, 270 4.5 S320 6, 340 4"
+        stroke="#1C1A17"
+        strokeWidth="1"
+        strokeLinecap="round"
+        opacity="0.12"
+        fill="none"
+      />
+    </svg>
+  )
+}
