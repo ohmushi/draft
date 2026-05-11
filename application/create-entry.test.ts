@@ -52,7 +52,7 @@ describe('createEntry', () => {
       { text: '', tag: null, mediaUrls: ['https://mock-minio/photo.jpg'], audioUrls: [] },
       fixedClock,
     )
-    expect(entry.content).toBe('![](https://mock-minio/photo.jpg)')
+    expect(entry.content).toBe('<PhotoGrid urls={["https://mock-minio/photo.jpg"]} />')
   })
 
   it('should append image markdown after text when both are present', async () => {
@@ -62,7 +62,9 @@ describe('createEntry', () => {
       { text: 'caption', tag: null, mediaUrls: ['https://mock-minio/a.jpg', 'https://mock-minio/b.jpg'], audioUrls: [] },
       fixedClock,
     )
-    expect(entry.content).toBe('caption\n\n![](https://mock-minio/a.jpg)\n![](https://mock-minio/b.jpg)')
+    expect(entry.content).toBe(
+      'caption\n\n<PhotoGrid urls={["https://mock-minio/a.jpg","https://mock-minio/b.jpg"]} />',
+    )
   })
 
   it('should succeed with a single audio only', async () => {
@@ -72,7 +74,7 @@ describe('createEntry', () => {
       { text: '', tag: null, mediaUrls: [], audioUrls: ['https://mock-minio/rec.webm'] },
       fixedClock,
     )
-    expect(entry.content).toBe('<audio controls src="https://mock-minio/rec.webm"></audio>')
+    expect(entry.content).toBe('<AudioPlayer src="https://mock-minio/rec.webm" />')
   })
 
   it('should succeed with multiple audios only', async () => {
@@ -83,7 +85,7 @@ describe('createEntry', () => {
       fixedClock,
     )
     expect(entry.content).toBe(
-      '<audio controls src="https://mock-minio/r1.webm"></audio>\n<audio controls src="https://mock-minio/r2.webm"></audio>',
+      '<AudioPlayer src="https://mock-minio/r1.webm" />\n<AudioPlayer src="https://mock-minio/r2.webm" />',
     )
   })
 
@@ -95,7 +97,7 @@ describe('createEntry', () => {
       fixedClock,
     )
     expect(entry.content).toBe(
-      'note vocale\n\n![](https://mock-minio/img.jpg)\n\n<audio controls src="https://mock-minio/rec.webm"></audio>',
+      'note vocale\n\n<PhotoGrid urls={["https://mock-minio/img.jpg"]} />\n\n<AudioPlayer src="https://mock-minio/rec.webm" />',
     )
   })
 })
@@ -105,13 +107,15 @@ describe('buildContent', () => {
     expect(buildContent('hello', [], [])).toBe('hello')
   })
 
-  it('should return image markdown only when no text', () => {
-    expect(buildContent('', ['https://cdn/img.jpg'], [])).toBe('![](https://cdn/img.jpg)')
+  it('should return PhotoGrid only when no text', () => {
+    expect(buildContent('', ['https://cdn/img.jpg'], [])).toBe(
+      '<PhotoGrid urls={["https://cdn/img.jpg"]} />',
+    )
   })
 
-  it('should join text and images with a blank line', () => {
+  it('should join text and PhotoGrid with a blank line', () => {
     expect(buildContent('note', ['https://cdn/a.jpg', 'https://cdn/b.jpg'], [])).toBe(
-      'note\n\n![](https://cdn/a.jpg)\n![](https://cdn/b.jpg)',
+      'note\n\n<PhotoGrid urls={["https://cdn/a.jpg","https://cdn/b.jpg"]} />',
     )
   })
 
@@ -119,27 +123,27 @@ describe('buildContent', () => {
     expect(buildContent('  hello  ', [], [])).toBe('hello')
   })
 
-  it('should return single audio tag when no text and no images', () => {
+  it('should return single AudioPlayer when no text and no images', () => {
     expect(buildContent('', [], ['https://cdn/rec.webm'])).toBe(
-      '<audio controls src="https://cdn/rec.webm"></audio>',
+      '<AudioPlayer src="https://cdn/rec.webm" />',
     )
   })
 
-  it('should return multiple audio tags joined by newline', () => {
+  it('should return multiple AudioPlayers joined by newline', () => {
     expect(buildContent('', [], ['https://cdn/r1.webm', 'https://cdn/r2.webm'])).toBe(
-      '<audio controls src="https://cdn/r1.webm"></audio>\n<audio controls src="https://cdn/r2.webm"></audio>',
+      '<AudioPlayer src="https://cdn/r1.webm" />\n<AudioPlayer src="https://cdn/r2.webm" />',
     )
   })
 
-  it('should append audio after images', () => {
+  it('should append AudioPlayer after PhotoGrid', () => {
     expect(buildContent('', ['https://cdn/img.jpg'], ['https://cdn/rec.webm'])).toBe(
-      '![](https://cdn/img.jpg)\n\n<audio controls src="https://cdn/rec.webm"></audio>',
+      '<PhotoGrid urls={["https://cdn/img.jpg"]} />\n\n<AudioPlayer src="https://cdn/rec.webm" />',
     )
   })
 
-  it('should order text then images then audios', () => {
+  it('should order text then PhotoGrid then AudioPlayer', () => {
     expect(buildContent('texte', ['https://cdn/img.jpg'], ['https://cdn/rec.webm'])).toBe(
-      'texte\n\n![](https://cdn/img.jpg)\n\n<audio controls src="https://cdn/rec.webm"></audio>',
+      'texte\n\n<PhotoGrid urls={["https://cdn/img.jpg"]} />\n\n<AudioPlayer src="https://cdn/rec.webm" />',
     )
   })
 })
