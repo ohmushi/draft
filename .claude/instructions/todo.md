@@ -40,11 +40,11 @@ Après toute modification non triviale :
 
 ## Flux — Affichage des médias
 
-### ⬜ Affichage des images dans le flux et les entrées individuelles
+### ✅ Affichage des images dans le flux et les entrées individuelles — 2026-05-11
 **Contexte** : Le MDX supporte `![](url)` et les images s'affichent via le rendu MDX standard. Mais il n'y a pas de style particulier : pas de `next/image`, pas de classe CSS dédiée, pas de placeholder pendant le chargement.  
 **Intention** : Styler les images dans `globals.css` (`.entry-body img`) pour qu'elles s'inscrivent dans le design — fond crème-dark, bordure pointillée, `border-radius: 2px`, comme le mockup. Envisager `next/image` pour l'optimisation si les images viennent de MinIO (domaine connu).
 
-### ⬜ Player audio dans le flux
+### ✅ Player audio dans le flux — 2026-05-11
 **Contexte** : Un enregistrement posté depuis le studio sera inséré dans le MDX comme lien ou balise audio. Il n'existe pas encore de composant `<Audio>` MDX, et le player HTML5 natif est visuellement incompatible avec le design.  
 **Intention** : Créer un composant MDX `<Audio src="…" />` avec un player minimaliste — bouton play/pause SVG, durée en JetBrains Mono, fond `--cream-dark`. L'enregistrer dans `mdx-components.tsx`. Ajouter le composant `Audio` au tableau de `CONTEXT.md`.
 
@@ -52,11 +52,11 @@ Après toute modification non triviale :
 
 ## Studio — UX & robustesse
 
-### ⬜ Barre de progression audio saccadée dans le composant Audio
+### ✅ Barre de progression audio saccadée dans le composant Audio — 2026-05-11
 **Contexte** : Le composant `<Audio>` (player dans le flux) présente une barre de progression saccadée lors de la lecture. L'animation n'est pas fluide — probablement un `setInterval` ou une mise à jour d'état trop fréquente ou mal optimisée qui déclenche trop de re-renders.  
 **Intention** : Retravailler la mécanique de mise à jour de la progression — utiliser `requestAnimationFrame` plutôt qu'un timer, ou piloter la barre via une ref CSS directement (`style.width`) sans passer par le state React, pour une animation 60fps sans re-render.
 
-### ⬜ Retirer la gestion legacy des médias
+### ✅ Retirer la gestion legacy des médias — 2026-05-11
 **Contexte** : Des anciens lecteurs audio (player HTML5 natif ou ancienne implémentation) sont encore visibles dans l'interface alors qu'un composant `<Audio>` custom existe désormais. Des résidus de l'ancienne gestion des médias coexistent avec la nouvelle.  
 **Intention** : Identifier et supprimer tous les points d'entrée legacy — balises `<audio>` natives non stylisées, ancien rendu des médias dans le flux ou dans le studio, tout ce qui n'est pas acheminé par le composant custom. Un seul chemin de rendu pour les médias.
 

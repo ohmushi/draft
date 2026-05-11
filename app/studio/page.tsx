@@ -63,6 +63,23 @@ export default function StudioPage() {
     }
   }, [])
 
+  useEffect(() => {
+    audios.forEach(capture => {
+      if (!audioRefs.current.has(capture.id)) {
+        const audio = new Audio(capture.objectUrl)
+        audio.addEventListener('ended', () => setPlayingId(null))
+        audioRefs.current.set(capture.id, audio)
+      }
+    })
+    for (const [id, audio] of Array.from(audioRefs.current.entries())) {
+      if (!audios.some(c => c.id === id)) {
+        audio.pause()
+        audio.src = ''
+        audioRefs.current.delete(id)
+      }
+    }
+  }, [audios])
+
   const canPublish = text.trim().length > 0 || photos.length > 0 || audios.length > 0
 
   const handleTagClick = useCallback((tag: EntryTag) => {
@@ -256,41 +273,31 @@ export default function StudioPage() {
                 </div>
               ))}
               {audios.map(capture => (
-                <div key={capture.id}>
-                  <audio
-                    ref={el => {
-                      if (el) audioRefs.current.set(capture.id, el)
-                      else audioRefs.current.delete(capture.id)
-                    }}
-                    src={capture.objectUrl}
-                    onEnded={() => setPlayingId(null)}
-                  />
-                  <div className={`${styles.mediaThumb} ${styles.audioThumb}`}>
-                    <button
-                      className={styles.audioPlayBtn}
-                      onClick={() => handleTogglePlayback(capture.id)}
-                      aria-label={playingId === capture.id ? "Mettre en pause" : "Écouter l'enregistrement"}
-                    >
-                      {playingId === capture.id ? (
-                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
-                          <rect x="6" y="4" width="4" height="16" />
-                          <rect x="14" y="4" width="4" height="16" />
-                        </svg>
-                      ) : (
-                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
-                          <polygon points="5 3 19 12 5 21 5 3" />
-                        </svg>
-                      )}
-                    </button>
-                    <span className={styles.audioLabel}>{formatDuration(capture.duration)}</span>
-                    <button
-                      className={styles.thumbRemove}
-                      onClick={() => handleRemoveAudio(capture.id)}
-                      aria-label="Supprimer l'audio"
-                    >
-                      ×
-                    </button>
-                  </div>
+                <div key={capture.id} className={`${styles.mediaThumb} ${styles.audioThumb}`}>
+                  <button
+                    className={styles.audioPlayBtn}
+                    onClick={() => handleTogglePlayback(capture.id)}
+                    aria-label={playingId === capture.id ? "Mettre en pause" : "Écouter l'enregistrement"}
+                  >
+                    {playingId === capture.id ? (
+                      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+                        <rect x="6" y="4" width="4" height="16" />
+                        <rect x="14" y="4" width="4" height="16" />
+                      </svg>
+                    ) : (
+                      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+                        <polygon points="5 3 19 12 5 21 5 3" />
+                      </svg>
+                    )}
+                  </button>
+                  <span className={styles.audioLabel}>{formatDuration(capture.duration)}</span>
+                  <button
+                    className={styles.thumbRemove}
+                    onClick={() => handleRemoveAudio(capture.id)}
+                    aria-label="Supprimer l'audio"
+                  >
+                    ×
+                  </button>
                 </div>
               ))}
             </div>

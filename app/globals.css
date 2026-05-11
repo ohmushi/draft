@@ -453,12 +453,14 @@ footer span {
   object-fit: contain;
 }
 
-.entry-img-legacy {
+.entry-img {
   max-width: 100%;
   height: auto;
   display: block;
   margin: 0.75rem 0;
   border-radius: 2px;
+  background: var(--cream-dark);
+  border: 1px dashed rgba(28, 26, 23, 0.2);
 }
 
 /* ── Audio Player ── */
@@ -507,9 +509,9 @@ footer span {
 
 .audio-player__fill {
   height: 100%;
+  width: 0;
   background: var(--ink-soft);
   border-radius: 2px;
-  transition: width 0.1s linear;
 }
 
 .audio-player__time {
