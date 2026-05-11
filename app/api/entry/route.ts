@@ -24,23 +24,23 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
   const rawText = formData.get('text')
   const rawTag = formData.get('tag')
   const photoEntries = formData.getAll('photos')
-  const rawAudio = formData.get('audio')
+  const audioEntries = formData.getAll('audio')
 
   const text = typeof rawText === 'string' ? rawText.trim() : ''
   const rawTagStr = typeof rawTag === 'string' ? rawTag.trim() : ''
   const tag = rawTagStr && isEntryTag(rawTagStr) ? rawTagStr : null
   const photos = photoEntries.filter((entry): entry is File => entry instanceof File)
-  const audioFile = rawAudio instanceof File ? rawAudio : null
+  const audioFiles = audioEntries.filter((entry): entry is File => entry instanceof File)
 
-  if (text.length === 0 && photos.length === 0 && audioFile === null) {
+  if (text.length === 0 && photos.length === 0 && audioFiles.length === 0) {
     return NextResponse.json({ ok: false, error: 'Texte et médias vides' }, { status: 400 })
   }
 
   try {
     let mediaUrls: readonly string[] = []
-    let audioUrl: string | null = null
+    let audioUrls: readonly string[] = []
 
-    if (photos.length > 0 || audioFile !== null) {
+    if (photos.length > 0 || audioFiles.length > 0) {
       const bucket = process.env.MINIO_BUCKET ?? 'draft-media'
       const storage = new MinioMediaStorage(getMinioClient(), bucket)
 
@@ -50,13 +50,15 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
         )
       }
 
-      if (audioFile !== null) {
-        audioUrl = await storage.upload(audioFile, generateMediaFilename(audioFile))
+      if (audioFiles.length > 0) {
+        audioUrls = await Promise.all(
+          audioFiles.map(audio => storage.upload(audio, generateMediaFilename(audio)))
+        )
       }
     }
 
     const repository = new PrismaEntryRepository()
-    const entry = await createEntry(repository, { text, tag, mediaUrls, audioUrl })
+    const entry = await createEntry(repository, { text, tag, mediaUrls, audioUrls })
     revalidatePath('/', 'page')
     return NextResponse.json({ ok: true, slug: entry.slug })
   } catch (error) {

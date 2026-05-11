@@ -12,6 +12,7 @@ type Photo = {
 }
 
 type AudioCapture = {
+  readonly id: string
   readonly blob: Blob
   readonly duration: number
   readonly objectUrl: string
@@ -38,12 +39,12 @@ export default function StudioPage() {
   const [photos, setPhotos] = useState<readonly Photo[]>([])
   const [isRecording, setIsRecording] = useState(false)
   const [recSeconds, setRecSeconds] = useState(0)
-  const [audioCapture, setAudioCapture] = useState<AudioCapture | null>(null)
-  const [isPlaying, setIsPlaying] = useState(false)
+  const [audios, setAudios] = useState<readonly AudioCapture[]>([])
+  const [playingId, setPlayingId] = useState<string | null>(null)
   const [submitState, setSubmitState] = useState<SubmitState>('idle')
 
   const textareaRef = useRef<HTMLTextAreaElement>(null)
-  const audioRef = useRef<HTMLAudioElement>(null)
+  const audioRefs = useRef<Map<string, HTMLAudioElement>>(new Map())
   const mediaRecorderRef = useRef<MediaRecorder | null>(null)
   const recordingChunksRef = useRef<Blob[]>([])
   const recTimerRef = useRef<ReturnType<typeof setInterval> | null>(null)
@@ -62,7 +63,7 @@ export default function StudioPage() {
     }
   }, [])
 
-  const canPublish = text.trim().length > 0 || photos.length > 0 || audioCapture !== null
+  const canPublish = text.trim().length > 0 || photos.length > 0 || audios.length > 0
 
   const handleTagClick = useCallback((tag: EntryTag) => {
     setSelectedTag(current => (current === tag ? null : tag))
@@ -85,13 +86,14 @@ export default function StudioPage() {
     setPhotos(prev => prev.filter(p => p.id !== id))
   }, [])
 
-  const handleRemoveAudio = useCallback(() => {
-    if (audioCapture !== null) {
-      URL.revokeObjectURL(audioCapture.objectUrl)
-    }
-    setAudioCapture(null)
-    setIsPlaying(false)
-  }, [audioCapture])
+  const handleRemoveAudio = useCallback((id: string) => {
+    setAudios(prev => {
+      const target = prev.find(a => a.id === id)
+      if (target) URL.revokeObjectURL(target.objectUrl)
+      return prev.filter(a => a.id !== id)
+    })
+    setPlayingId(current => (current === id ? null : current))
+  }, [])
 
   const handleToggleRecording = useCallback(async () => {
     if (isRecording) {
@@ -115,8 +117,13 @@ export default function StudioPage() {
 
         recorder.onstop = () => {
           const blob = new Blob(recordingChunksRef.current, { type: recorder.mimeType })
-          const objectUrl = URL.createObjectURL(blob)
-          setAudioCapture({ blob, duration: pendingDurationRef.current, objectUrl })
+          const newCapture: AudioCapture = {
+            id: String(Date.now()),
+            blob,
+            duration: pendingDurationRef.current,
+            objectUrl: URL.createObjectURL(blob),
+          }
+          setAudios(prev => [...prev, newCapture])
           stream.getTracks().forEach(track => track.stop())
           setIsRecording(false)
         }
@@ -134,17 +141,20 @@ export default function StudioPage() {
     }
   }, [isRecording, recSeconds])
 
-  const handleTogglePlayback = useCallback(() => {
-    const audio = audioRef.current
-    if (audio === null) return
-    if (isPlaying) {
-      audio.pause()
-      setIsPlaying(false)
+  const handleTogglePlayback = useCallback((id: string) => {
+    if (playingId === id) {
+      audioRefs.current.get(id)?.pause()
+      setPlayingId(null)
     } else {
-      void audio.play()
-      setIsPlaying(true)
+      if (playingId !== null) audioRefs.current.get(playingId)?.pause()
+      const el = audioRefs.current.get(id)
+      if (el) {
+        el.currentTime = 0
+        void el.play()
+        setPlayingId(id)
+      }
     }
-  }, [isPlaying])
+  }, [playingId])
 
   const handleSubmit = useCallback(async () => {
     if (!canPublish) return
@@ -156,9 +166,9 @@ export default function StudioPage() {
     for (const photo of photos) {
       formData.append('photos', photo.file)
     }
-    if (audioCapture !== null) {
-      const ext = audioCapture.blob.type.includes('ogg') ? '.ogg' : '.webm'
-      formData.append('audio', audioCapture.blob, `audio${ext}`)
+    for (const capture of audios) {
+      const ext = capture.blob.type.includes('ogg') ? '.ogg' : '.webm'
+      formData.append('audio', capture.blob, `audio-${capture.id}${ext}`)
     }
 
     try {
@@ -169,14 +179,12 @@ export default function StudioPage() {
       }
       setSubmitState('success')
       setTimeout(() => {
-        if (audioCapture !== null) {
-          URL.revokeObjectURL(audioCapture.objectUrl)
-        }
+        audios.forEach(a => URL.revokeObjectURL(a.objectUrl))
         setText('')
         setSelectedTag(null)
         setPhotos([])
-        setAudioCapture(null)
-        setIsPlaying(false)
+        setAudios([])
+        setPlayingId(null)
         setRecSeconds(0)
         setSubmitState('idle')
         textareaRef.current?.focus()
@@ -184,7 +192,7 @@ export default function StudioPage() {
     } catch {
       setSubmitState('error')
     }
-  }, [canPublish, text, selectedTag, photos, audioCapture])
+  }, [canPublish, text, selectedTag, photos, audios])
 
   return (
     <div className={styles.phoneBg}>
@@ -232,7 +240,7 @@ export default function StudioPage() {
             </div>
           )}
 
-          {(photos.length > 0 || audioCapture !== null) && (
+          {(photos.length > 0 || audios.length > 0) && (
             <div className={styles.mediaPreviews}>
               {photos.map(photo => (
                 <div key={photo.id} className={styles.mediaThumb}>
@@ -247,20 +255,23 @@ export default function StudioPage() {
                   </button>
                 </div>
               ))}
-              {audioCapture !== null && (
-                <>
+              {audios.map(capture => (
+                <div key={capture.id}>
                   <audio
-                    ref={audioRef}
-                    src={audioCapture.objectUrl}
-                    onEnded={() => setIsPlaying(false)}
+                    ref={el => {
+                      if (el) audioRefs.current.set(capture.id, el)
+                      else audioRefs.current.delete(capture.id)
+                    }}
+                    src={capture.objectUrl}
+                    onEnded={() => setPlayingId(null)}
                   />
                   <div className={`${styles.mediaThumb} ${styles.audioThumb}`}>
                     <button
                       className={styles.audioPlayBtn}
-                      onClick={handleTogglePlayback}
-                      aria-label={isPlaying ? "Mettre en pause" : "Écouter l'enregistrement"}
+                      onClick={() => handleTogglePlayback(capture.id)}
+                      aria-label={playingId === capture.id ? "Mettre en pause" : "Écouter l'enregistrement"}
                     >
-                      {isPlaying ? (
+                      {playingId === capture.id ? (
                         <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
                           <rect x="6" y="4" width="4" height="16" />
                           <rect x="14" y="4" width="4" height="16" />
@@ -271,17 +282,17 @@ export default function StudioPage() {
                         </svg>
                       )}
                     </button>
-                    <span className={styles.audioLabel}>{formatDuration(audioCapture.duration)}</span>
+                    <span className={styles.audioLabel}>{formatDuration(capture.duration)}</span>
                     <button
                       className={styles.thumbRemove}
-                      onClick={handleRemoveAudio}
+                      onClick={() => handleRemoveAudio(capture.id)}
                       aria-label="Supprimer l'audio"
                     >
                       ×
                     </button>
                   </div>
-                </>
-              )}
+                </div>
+              ))}
             </div>
           )}
 

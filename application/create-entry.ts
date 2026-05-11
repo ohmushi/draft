@@ -4,11 +4,11 @@ import { formatDate, formatTime, generateSlug } from '@/lib/slug'
 export function buildContent(
   text: string,
   mediaUrls: readonly string[],
-  audioUrl: string | null,
+  audioUrls: readonly string[],
 ): string {
   const trimmed = text.trim()
   const imageMarkdown = mediaUrls.map(url => `![](${url})`).join('\n')
-  const audioMarkdown = audioUrl !== null ? `<audio controls src="${audioUrl}"></audio>` : ''
+  const audioMarkdown = audioUrls.map(url => `<audio controls src="${url}"></audio>`).join('\n')
 
   const parts = [trimmed, imageMarkdown, audioMarkdown].filter(Boolean)
   return parts.join('\n\n')
@@ -19,7 +19,7 @@ export async function createEntry(
   input: CreateEntryInput,
   clock: () => Date = () => new Date(),
 ): Promise<Entry> {
-  if (!input.text.trim() && input.mediaUrls.length === 0 && input.audioUrl === null) {
+  if (!input.text.trim() && input.mediaUrls.length === 0 && input.audioUrls.length === 0) {
     throw new Error('Entry content cannot be empty')
   }
   const now = clock()
@@ -28,7 +28,7 @@ export async function createEntry(
     date: formatDate(now),
     time: formatTime(now),
     tag: input.tag,
-    content: buildContent(input.text, input.mediaUrls, input.audioUrl),
+    content: buildContent(input.text, input.mediaUrls, input.audioUrls),
   }
   return repository.save(newEntry)
 }

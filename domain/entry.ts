@@ -20,7 +20,7 @@ export type CreateEntryInput = {
   readonly text: string
   readonly tag: EntryTag | null
   readonly mediaUrls: readonly string[]
-  readonly audioUrl: string | null
+  readonly audioUrls: readonly string[]
 }
 
 export type NewEntry = {
