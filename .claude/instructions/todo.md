@@ -52,6 +52,14 @@ Après toute modification non triviale :
 
 ## Studio — UX & robustesse
 
+### ⬜ Barre de progression audio saccadée dans le composant Audio
+**Contexte** : Le composant `<Audio>` (player dans le flux) présente une barre de progression saccadée lors de la lecture. L'animation n'est pas fluide — probablement un `setInterval` ou une mise à jour d'état trop fréquente ou mal optimisée qui déclenche trop de re-renders.  
+**Intention** : Retravailler la mécanique de mise à jour de la progression — utiliser `requestAnimationFrame` plutôt qu'un timer, ou piloter la barre via une ref CSS directement (`style.width`) sans passer par le state React, pour une animation 60fps sans re-render.
+
+### ⬜ Retirer la gestion legacy des médias
+**Contexte** : Des anciens lecteurs audio (player HTML5 natif ou ancienne implémentation) sont encore visibles dans l'interface alors qu'un composant `<Audio>` custom existe désormais. Des résidus de l'ancienne gestion des médias coexistent avec la nouvelle.  
+**Intention** : Identifier et supprimer tous les points d'entrée legacy — balises `<audio>` natives non stylisées, ancien rendu des médias dans le flux ou dans le studio, tout ce qui n'est pas acheminé par le composant custom. Un seul chemin de rendu pour les médias.
+
 ### ⬜ Authentification du studio
 **Contexte** : `/studio` est accessible sans protection. C'est acceptable en phase de dev perso, mais dès que le site est public, n'importe qui peut poster dans le flux.  
 **Intention** : Ajouter un middleware Next.js qui vérifie un cookie signé (`draft-auth`). Pas de formulaire de login élaboré — un simple mot de passe posté vers une route `/api/auth` qui pose le cookie. L'interface de login doit rester dans l'esprit de la PWA (sobre, sans framework d'auth).
