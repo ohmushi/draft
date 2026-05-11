@@ -22,12 +22,12 @@ Après toute modification non triviale :
 **Intention** : Envoyer la photo dans la formData (`photos[]`), l'uploader vers MinIO depuis la route API, injecter l'URL publique dans le MDX généré comme `![](https://minio…)`.  
 **Dépend de** : Intégration MinIO.
 
-### ⬜ Enregistrement audio réel (MediaRecorder API)
+### ✅ Enregistrement audio réel (MediaRecorder API) — 2026-05-11
 **Contexte** : Le timer d'enregistrement dans le studio est une simulation visuelle — aucun son n'est capturé. `isRecording` incrémente un compteur, c'est tout.  
 **Intention** : Utiliser `navigator.mediaDevices.getUserMedia({ audio: true })` + `MediaRecorder` pour capturer un vrai flux audio, produire un `Blob` (format webm/ogg), puis l'uploader vers MinIO à la publication.  
 **Contrainte UX** : demander la permission micro seulement au premier clic sur le bouton — pas à l'ouverture de l'app.
 
-### ⬜ Preview audio avant publication
+### ✅ Preview audio avant publication — 2026-05-11
 **Contexte** : Après avoir "enregistré", l'utilisateur voit une vignette `🎵 0:32` mais ne peut pas réécouter le clip avant de publier. C'est un risque d'erreur (mauvaise prise).  
 **Intention** : Ajouter un `<audio>` natif minimaliste dans la vignette, ou un bouton play/pause SVG qui rejoue le blob local. Doit rester dans l'esprit graphique du projet (pas de player HTML5 par défaut).  
 **Dépend de** : Enregistrement audio réel.

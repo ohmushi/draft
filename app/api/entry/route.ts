@@ -24,29 +24,39 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
   const rawText = formData.get('text')
   const rawTag = formData.get('tag')
   const photoEntries = formData.getAll('photos')
+  const rawAudio = formData.get('audio')
 
   const text = typeof rawText === 'string' ? rawText.trim() : ''
   const rawTagStr = typeof rawTag === 'string' ? rawTag.trim() : ''
   const tag = rawTagStr && isEntryTag(rawTagStr) ? rawTagStr : null
   const photos = photoEntries.filter((entry): entry is File => entry instanceof File)
+  const audioFile = rawAudio instanceof File ? rawAudio : null
 
-  if (text.length === 0 && photos.length === 0) {
+  if (text.length === 0 && photos.length === 0 && audioFile === null) {
     return NextResponse.json({ ok: false, error: 'Texte et médias vides' }, { status: 400 })
   }
 
   try {
     let mediaUrls: readonly string[] = []
+    let audioUrl: string | null = null
 
-    if (photos.length > 0) {
+    if (photos.length > 0 || audioFile !== null) {
       const bucket = process.env.MINIO_BUCKET ?? 'draft-media'
       const storage = new MinioMediaStorage(getMinioClient(), bucket)
-      mediaUrls = await Promise.all(
-        photos.map(photo => storage.upload(photo, generateMediaFilename(photo)))
-      )
+
+      if (photos.length > 0) {
+        mediaUrls = await Promise.all(
+          photos.map(photo => storage.upload(photo, generateMediaFilename(photo)))
+        )
+      }
+
+      if (audioFile !== null) {
+        audioUrl = await storage.upload(audioFile, generateMediaFilename(audioFile))
+      }
     }
 
     const repository = new PrismaEntryRepository()
-    const entry = await createEntry(repository, { text, tag, mediaUrls })
+    const entry = await createEntry(repository, { text, tag, mediaUrls, audioUrl })
     revalidatePath('/', 'page')
     return NextResponse.json({ ok: true, slug: entry.slug })
   } catch (error) {
