@@ -542,6 +542,11 @@ footer span {
 }
 
 .delete-dialog {
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  margin: 0;
   background: var(--cream);
   border: 1px solid var(--paper-line);
   border-radius: 2px;

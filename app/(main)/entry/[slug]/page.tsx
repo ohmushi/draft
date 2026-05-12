@@ -60,7 +60,7 @@ export default async function EntryPage({
         <div className="entry-meta">
           <span className="entry-date">{formatDisplayDate(entry.date, entry.time)}</span>
           {entry.tag && <span className={`entry-tag ${tagClass}`}>{entry.tag}</span>}
-          <DeleteEntryButton slug={entry.slug} />
+          <DeleteEntryButton slug={entry.slug} label={formatDisplayDate(entry.date, entry.time)} />
         </div>
         <div className="entry-body">
           {content}
