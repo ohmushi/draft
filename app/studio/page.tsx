@@ -3,6 +3,7 @@
 import { useState, useEffect, useRef, useCallback } from 'react'
 import Link from 'next/link'
 import type { EntryTag } from '@/domain/entry'
+import { MEDIA_LIMITS } from '@/domain/media'
 import styles from './studio.module.css'
 
 type Photo = {
@@ -42,6 +43,7 @@ export default function StudioPage() {
   const [audios, setAudios] = useState<readonly AudioCapture[]>([])
   const [playingId, setPlayingId] = useState<string | null>(null)
   const [submitState, setSubmitState] = useState<SubmitState>('idle')
+  const [mediaError, setMediaError] = useState<string | null>(null)
 
   const textareaRef = useRef<HTMLTextAreaElement>(null)
   const audioRefs = useRef<Map<string, HTMLAudioElement>>(new Map())
@@ -88,7 +90,17 @@ export default function StudioPage() {
 
   const handleAddPhoto = useCallback((event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.currentTarget.files?.[0]
+    event.currentTarget.value = ''
     if (file === undefined) return
+    if (photos.length >= MEDIA_LIMITS.MAX_PHOTOS) {
+      setMediaError(`Maximum ${MEDIA_LIMITS.MAX_PHOTOS} photos atteint`)
+      return
+    }
+    if (file.size > MEDIA_LIMITS.MAX_PHOTO_SIZE_BYTES) {
+      setMediaError('Photo trop lourde (max 10 Mo)')
+      return
+    }
+    setMediaError(null)
     const reader = new FileReader()
     reader.onload = (e) => {
       const url = e.target?.result
@@ -96,8 +108,7 @@ export default function StudioPage() {
       setPhotos(prev => [...prev, { id: Date.now(), url, file }])
     }
     reader.readAsDataURL(file)
-    event.currentTarget.value = ''
-  }, [])
+  }, [photos])
 
   const handleRemovePhoto = useCallback((id: number) => {
     setPhotos(prev => prev.filter(p => p.id !== id))
@@ -134,6 +145,12 @@ export default function StudioPage() {
 
         recorder.onstop = () => {
           const blob = new Blob(recordingChunksRef.current, { type: recorder.mimeType })
+          stream.getTracks().forEach(track => track.stop())
+          setIsRecording(false)
+          if (blob.size > MEDIA_LIMITS.MAX_AUDIO_SIZE_BYTES) {
+            setMediaError('Enregistrement trop lourd (max 25 Mo)')
+            return
+          }
           const newCapture: AudioCapture = {
             id: String(Date.now()),
             blob,
@@ -141,8 +158,6 @@ export default function StudioPage() {
             objectUrl: URL.createObjectURL(blob),
           }
           setAudios(prev => [...prev, newCapture])
-          stream.getTracks().forEach(track => track.stop())
-          setIsRecording(false)
         }
 
         mediaRecorderRef.current = recorder
@@ -195,6 +210,7 @@ export default function StudioPage() {
         return
       }
       setSubmitState('success')
+      setMediaError(null)
       setTimeout(() => {
         audios.forEach(a => URL.revokeObjectURL(a.objectUrl))
         setText('')
@@ -255,6 +271,10 @@ export default function StudioPage() {
                 arrêter
               </button>
             </div>
+          )}
+
+          {mediaError !== null && (
+            <p className={styles.errorMsg}>{mediaError}</p>
           )}
 
           {(photos.length > 0 || audios.length > 0) && (
@@ -325,13 +345,18 @@ export default function StudioPage() {
 
           <div className={styles.actionsRow}>
             <div className={styles.mediaActions}>
-              <div className={styles.iconBtn}>
+              <div className={`${styles.iconBtn} ${photos.length >= MEDIA_LIMITS.MAX_PHOTOS ? styles.iconBtnDisabled : ''}`}>
                 <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
                   <rect x="2" y="6" width="20" height="14" rx="2" />
                   <circle cx="12" cy="13" r="3.5" />
                   <path d="M8 6V5a1 1 0 0 1 1-1h6a1 1 0 0 1 1 1v1" />
                 </svg>
-                <input type="file" accept="image/*" onChange={handleAddPhoto} />
+                <input
+                  type="file"
+                  accept="image/*"
+                  onChange={handleAddPhoto}
+                  disabled={photos.length >= MEDIA_LIMITS.MAX_PHOTOS}
+                />
               </div>
 
               <button

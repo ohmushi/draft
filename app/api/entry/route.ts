@@ -5,6 +5,7 @@ import { PrismaEntryRepository } from '@/infrastructure/prisma/entry-repository'
 import { MinioMediaStorage } from '@/infrastructure/minio/media-storage'
 import { getMinioClient } from '@/lib/minio'
 import { isEntryTag } from '@/domain/entry'
+import { validateMediaFiles } from '@/lib/validate-media'
 
 export const runtime = 'nodejs'
 
@@ -34,6 +35,11 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
 
   if (text.length === 0 && photos.length === 0 && audioFiles.length === 0) {
     return NextResponse.json({ ok: false, error: 'Texte et médias vides' }, { status: 400 })
+  }
+
+  const mediaValidationError = validateMediaFiles({ photos, audio: audioFiles[0] ?? null })
+  if (mediaValidationError !== null) {
+    return NextResponse.json({ ok: false, error: mediaValidationError.kind }, { status: 400 })
   }
 
   try {
