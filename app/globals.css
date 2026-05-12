@@ -609,3 +609,30 @@ footer span {
   opacity: 0.5;
   cursor: default;
 }
+
+/* ── Entry Navigation ── */
+.entry-nav {
+  display: flex;
+  justify-content: space-between;
+  margin-top: 3rem;
+  padding-top: 1.5rem;
+  border-top: 1px solid var(--paper-line);
+}
+
+.entry-nav-link {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.7rem;
+  font-weight: 300;
+  color: var(--ink-faint);
+  text-decoration: none;
+  letter-spacing: 0.05em;
+  transition: color 0.2s;
+}
+
+.entry-nav-link:hover {
+  color: var(--ink);
+}
+
+.entry-nav-next {
+  margin-left: auto;
+}
