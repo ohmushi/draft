@@ -1,4 +1,5 @@
 import { getEntry } from '@/application/get-entry'
+import { getAdjacentEntries } from '@/application/get-adjacent-entries'
 import { PrismaEntryRepository } from '@/infrastructure/prisma/entry-repository'
 import { compileMDX } from 'next-mdx-remote/rsc'
 import Sticky from '@/components/Sticky'
@@ -46,8 +47,12 @@ export default async function EntryPage({
   params: Promise<{ slug: string }>
 }) {
   const { slug } = await params
+  const repository = new PrismaEntryRepository()
 
-  const result = await getEntry(new PrismaEntryRepository(), slug)
+  const [result, adjacent] = await Promise.all([
+    getEntry(repository, slug),
+    getAdjacentEntries(repository, slug),
+  ])
   if (!result.ok) notFound()
 
   const entry = result.value
@@ -66,6 +71,18 @@ export default async function EntryPage({
           {content}
         </div>
       </article>
+      <nav className="entry-nav">
+        {adjacent.previous && (
+          <a href={`/entry/${adjacent.previous.slug}`} className="entry-nav-link entry-nav-prev">
+            ← {formatDisplayDate(adjacent.previous.date, adjacent.previous.time)}
+          </a>
+        )}
+        {adjacent.next && (
+          <a href={`/entry/${adjacent.next.slug}`} className="entry-nav-link entry-nav-next">
+            {formatDisplayDate(adjacent.next.date, adjacent.next.time)} →
+          </a>
+        )}
+      </nav>
     </main>
   )
 }
