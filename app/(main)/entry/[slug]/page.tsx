@@ -7,6 +7,7 @@ import CodeBlock from '@/components/CodeBlock'
 import PhotoGrid from '@/components/PhotoGrid'
 import AudioPlayer from '@/components/AudioPlayer'
 import EntryImage from '@/components/EntryImage'
+import DeleteEntryButton from '@/components/DeleteEntryButton'
 import { notFound } from 'next/navigation'
 
 export const dynamic = 'force-dynamic'
@@ -59,6 +60,7 @@ export default async function EntryPage({
         <div className="entry-meta">
           <span className="entry-date">{formatDisplayDate(entry.date, entry.time)}</span>
           {entry.tag && <span className={`entry-tag ${tagClass}`}>{entry.tag}</span>}
+          <DeleteEntryButton slug={entry.slug} />
         </div>
         <div className="entry-body">
           {content}

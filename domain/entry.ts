@@ -44,4 +44,5 @@ export interface EntryRepository {
   save(entry: NewEntry): Promise<Entry>
   findAll(): Promise<Entry[]>
   findBySlug(slug: string): Promise<Entry | null>
+  delete(slug: string): Promise<void>
 }

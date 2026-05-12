@@ -50,4 +50,8 @@ export class PrismaEntryRepository implements EntryRepository {
     const record = await getPrisma().entry.findUnique({ where: { slug } })
     return record ? toDomainEntry(record) : null
   }
+
+  async delete(slug: string): Promise<void> {
+    await getPrisma().entry.delete({ where: { slug } })
+  }
 }
