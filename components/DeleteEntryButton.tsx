@@ -3,7 +3,7 @@
 import { useRef, useState } from 'react'
 import { useRouter } from 'next/navigation'
 
-export default function DeleteEntryButton({ slug }: { slug: string }) {
+export default function DeleteEntryButton({ slug, label }: { slug: string; label: string }) {
   const dialogRef = useRef<HTMLDialogElement>(null)
   const [pending, setPending] = useState(false)
   const router = useRouter()
@@ -35,7 +35,7 @@ export default function DeleteEntryButton({ slug }: { slug: string }) {
       </button>
 
       <dialog ref={dialogRef} className="delete-dialog">
-        <p className="delete-dialog-message">Supprimer cette entrée ?</p>
+        <p className="delete-dialog-message">Supprimer {label} ?</p>
         <div className="delete-dialog-actions">
           <button className="delete-dialog-cancel" onClick={closeDialog} type="button">
             annuler
