@@ -328,6 +328,11 @@
   border-color: rgba(192, 57, 43, 0.3);
 }
 
+.iconBtnDisabled {
+  opacity: 0.4;
+  pointer-events: none;
+}
+
 .sendBtn {
   height: 36px;
   padding: 0 1.2rem;
