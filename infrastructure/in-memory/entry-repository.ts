@@ -25,4 +25,9 @@ export class InMemoryEntryRepository implements EntryRepository {
   async findBySlug(slug: string): Promise<Entry | null> {
     return this.entries.find((entry) => entry.slug === slug) ?? null
   }
+
+  async delete(slug: string): Promise<void> {
+    const index = this.entries.findIndex((entry) => entry.slug === slug)
+    if (index !== -1) this.entries.splice(index, 1)
+  }
 }
