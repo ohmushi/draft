@@ -50,6 +50,14 @@ Après toute modification non triviale :
 
 ---
 
+## Flux — Actions sur les entrées
+
+### ✅ Supprimer une entrée depuis la page individuelle — 2026-05-12
+**Contexte** : Il n'existait aucun moyen de supprimer une entrée depuis l'interface. Il fallait passer par la base de données directement ou via un script.  
+**Intention** : Ajouter un bouton de suppression sur `/entry/[slug]` avec une dialog de confirmation affichant la date de l'entrée, centré dans le viewport. La suppression appelle un use case `deleteEntry` et redirige vers le flux.
+
+---
+
 ## Studio — UX & robustesse
 
 ### ✅ Barre de progression audio saccadée dans le composant Audio — 2026-05-11
@@ -59,6 +67,10 @@ Après toute modification non triviale :
 ### ✅ Retirer la gestion legacy des médias — 2026-05-11
 **Contexte** : Des anciens lecteurs audio (player HTML5 natif ou ancienne implémentation) sont encore visibles dans l'interface alors qu'un composant `<Audio>` custom existe désormais. Des résidus de l'ancienne gestion des médias coexistent avec la nouvelle.  
 **Intention** : Identifier et supprimer tous les points d'entrée legacy — balises `<audio>` natives non stylisées, ancien rendu des médias dans le flux ou dans le studio, tout ce qui n'est pas acheminé par le composant custom. Un seul chemin de rendu pour les médias.
+
+### ✅ Limites de taille et de quantité sur les médias du studio — 2026-05-12
+**Contexte** : L'interface acceptait n'importe quelle quantité et taille de fichiers (photos, audio). Risque de saturation MinIO ou d'erreurs silencieuses lors de l'envoi.  
+**Intention** : Appliquer des limites côté client (nombre max de photos, taille max par fichier) avec un retour visuel clair à l'utilisateur quand la limite est atteinte.
 
 ### ⬜ Authentification du studio
 **Contexte** : `/studio` est accessible sans protection. C'est acceptable en phase de dev perso, mais dès que le site est public, n'importe qui peut poster dans le flux.  
